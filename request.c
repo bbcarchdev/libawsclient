@@ -78,12 +78,14 @@ s3_request_finalise(S3REQUEST *req)
 
 	if(req->finalised || !req->bucket->access || !req->bucket->secret || !req->bucket->bucket)
 	{
+		fprintf(stderr, "bucket details are missing\n");
 		errno = EINVAL;
 		return -1;
 	}
 	ch = s3_request_curl(req);
 	if(!ch)
 	{
+		fprintf(stderr, "failed to create cURL handle\n");
 		return -1;
 	}
 	/* The resource path is signed in the request, and takes the form:
@@ -93,6 +95,7 @@ s3_request_finalise(S3REQUEST *req)
 	resource = (char *) calloc(1, l);
 	if(!resource)
 	{
+		fprintf(stderr, "failed to allocate memory for request-uri\n");
 		return -1;
 	}
 	p = resource;
@@ -137,6 +140,7 @@ s3_request_finalise(S3REQUEST *req)
 	url = (char *) calloc(1, l);
 	if(!url)
 	{
+		fprintf(stderr, "failed to allocate memory for S3 URL\n");
 		free(resource);
 		return -1;
 	}
@@ -150,6 +154,7 @@ s3_request_finalise(S3REQUEST *req)
 	headers = s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, s3_request_headers(req));
 	if(!headers)
 	{
+		fprintf(stderr, "failed to sign request headers\n");
 		return -1;
 	}
 	req->finalised = 1;
