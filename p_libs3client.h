@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014 BBC
+ * Copyright (c) 2014-2015 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 # include <time.h>
 # include <errno.h>
 # include <ctype.h>
+# include <syslog.h>
 
 # include <curl/curl.h>
 # include <openssl/hmac.h>
@@ -44,6 +45,7 @@ struct s3_bucket_struct
 	char *secret;
 	char *endpoint;
 	char *basepath;
+	void (*logger)(int prio, const char *format, va_list ap);
 };
 
 struct s3_request_struct
@@ -55,5 +57,7 @@ struct s3_request_struct
 	struct curl_slist *headers;
 	int finalised;
 };
+
+void s3_logf_(S3BUCKET *bucket, int prio, const char *format, ...);
 
 #endif /*!P_LIBS3CLIENT_H_*/

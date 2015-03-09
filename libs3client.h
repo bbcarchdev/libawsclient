@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014 BBC
+ * Copyright (c) 2014-2015 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #ifndef LIBS3CLIENT_H_
 # define LIBS3CLIENT_H_                 1
 
+# include <stdarg.h>
 # include <curl/curl.h>
 
 typedef struct s3_bucket_struct S3BUCKET;
@@ -28,6 +29,9 @@ S3BUCKET *s3_create(const char *bucket);
 
 /* Free the resources used by a bucket */
 int s3_destroy(S3BUCKET *bucket);
+
+/* Set the logging function to use for this bucket */
+int s3_set_logger(S3BUCKET *bucket, void (*logger)(int prio, const char *format, va_list ap));
 
 /* Set the name of the S3 bucket */
 int s3_set_bucket(S3BUCKET *bucket, const char *name);

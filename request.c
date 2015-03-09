@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014 BBC
+ * Copyright (c) 2014-2015 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -78,14 +78,14 @@ s3_request_finalise(S3REQUEST *req)
 
 	if(req->finalised || !req->bucket->access || !req->bucket->secret || !req->bucket->bucket)
 	{
-		fprintf(stderr, "bucket details are missing\n");
+		s3_logf_(req->bucket, LOG_ERR, "S3: bucket details (access key, secret key, or bucket name) are missing\n");
 		errno = EINVAL;
 		return -1;
 	}
 	ch = s3_request_curl(req);
 	if(!ch)
 	{
-		fprintf(stderr, "failed to create cURL handle\n");
+		s3_logf_(req->bucket, LOG_ERR, "S3: failed to create cURL handle\n");
 		return -1;
 	}
 	/* The resource path is signed in the request, and takes the form:
@@ -95,7 +95,7 @@ s3_request_finalise(S3REQUEST *req)
 	resource = (char *) calloc(1, l);
 	if(!resource)
 	{
-		fprintf(stderr, "failed to allocate memory for request-uri\n");
+		s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for request-uri\n");
 		return -1;
 	}
 	p = resource;
@@ -140,7 +140,7 @@ s3_request_finalise(S3REQUEST *req)
 	url = (char *) calloc(1, l);
 	if(!url)
 	{
-		fprintf(stderr, "failed to allocate memory for S3 URL\n");
+		s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for S3 URL\n");
 		free(resource);
 		return -1;
 	}
@@ -154,7 +154,7 @@ s3_request_finalise(S3REQUEST *req)
 	headers = s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, s3_request_headers(req));
 	if(!headers)
 	{
-		fprintf(stderr, "failed to sign request headers\n");
+		s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
 		return -1;
 	}
 	req->finalised = 1;

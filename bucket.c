@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014 BBC
+ * Copyright (c) 2014-2015 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ s3_create(const char *bucket)
 		s3_destroy(p);
 		return NULL;
 	}
+	p->logger = vsyslog;
 	return p;
 }
 
@@ -138,4 +139,28 @@ s3_set_basepath(S3BUCKET *bucket, const char *path)
 	free(bucket->basepath);
 	bucket->basepath = p;
 	return 0;
+}
+
+/* Set the logging function */
+int
+s3_set_logger(S3BUCKET *bucket, void (*logger)())
+{
+	if(!logger)
+	{
+		bucket->logger = vsyslog;
+	}
+	else
+	{
+		bucket->logger = logger;
+	}
+	return 0;
+}
+
+void
+s3_logf_(S3BUCKET *bucket, int prio, const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	bucket->logger(prio, format, ap);
 }
