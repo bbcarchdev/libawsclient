@@ -166,18 +166,20 @@ s3_request_finalise(S3REQUEST *req)
 int
 s3_request_perform(S3REQUEST *req)
 {
+	int e;
+
 	if(!req->finalised)
 	{
 		if(s3_request_finalise(req))
 		{
-			return -1;
+			return CURLE_FAILED_INIT;
 		}
 	}
-	if(curl_easy_perform(req->ch) != CURLE_OK)
+	if((e = curl_easy_perform(req->ch)) != CURLE_OK)
 	{
-		return -1;
+		return e;
 	}
-	return 0;
+	return CURLE_OK;
 }
 
 /* Obtain (creating if needed) the cURL handle for this request */
