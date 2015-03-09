@@ -51,6 +51,7 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 	type = md5 = date = adate = NULL;
 	len = strlen(method) + strlen(resource) + 2;
 	amzcount = 0;
+	amzlen = 0;
 	for(p = headers; p; p = p->next)
 	{
 		if(!strncasecmp(p->data, "content-type: ", 14))
