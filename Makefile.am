@@ -25,4 +25,5 @@ libs3client_la_SOURCES = libs3client.h p_libs3client.h \
 
 libs3client_la_LIBADD = \
 	$(LIBCURL_LOCAL_LIBS) $(LIBCURL_LIBS) \
-	$(OPENSSL_LOCAL_LIBS) $(OPENSSL_LIBS)
+	$(OPENSSL_LOCAL_LIBS) $(OPENSSL_LIBS) \
+	$(LIBURI_LOCAL_LIBS) $(LIBURI_LIBS)
