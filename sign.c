@@ -21,6 +21,10 @@
 
 #include "p_libs3client.h"
 
+#ifndef CC_SHA1_DIGEST_LENGTH
+# define CC_SHA1_DIGEST_LENGTH         20
+#endif
+
 static int s3_header_sort_(const void *a, const void *b);
 
 static char *
@@ -39,11 +43,9 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 	char *t, *s, *buf, *amzbuf;
 	char **amzhdr;
 	struct curl_slist *p;
-	unsigned char digest[20];
+	unsigned char digest[CC_SHA1_DIGEST_LENGTH];
 	unsigned digestlen;
 	char *sigbuf;
-	BIO *bmem, *b64;
-	BUF_MEM *bptr;
 	time_t now;
 	struct tm tm;
 	char datebuf[64];
@@ -179,26 +181,21 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 		free(amzhdr);
 	}
 	t = stradd(t, resource);
+#ifdef WITH_COMMONCRYPTO
+	CCHmac(kCCHmacAlgSHA1, secret, strlen(secret), buf, strlen(buf), digest);
+	digestlen = CC_SHA1_DIGEST_LENGTH;
+#else
 	HMAC(EVP_sha1(), secret, strlen(secret), (unsigned char *) buf, strlen(buf), digest, &digestlen);
-	
+#endif
 	free(buf);
 
-	sigbuf = (char *) calloc(1, strlen(access_key) + 80);
+	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 8);
 	t = stradd(sigbuf, "Authorization: AWS ");
 	t = stradd(t, access_key);
 	*t = ':';
 	t++;
-
-	b64 = BIO_new(BIO_f_base64());
-	bmem = BIO_new(BIO_s_mem());
-	b64 = BIO_push(b64, bmem);
-	BIO_write(b64, digest, digestlen);
-	(void) BIO_flush(b64);
-	BIO_get_mem_ptr(b64, &bptr);
-	memcpy(t, bptr->data, bptr->length - 1);
-	t[bptr->length - 1] = 0;
+	s3_base64_encode_(digest, digestlen, (uint8_t *) sigbuf);
 	headers = curl_slist_append(headers, sigbuf);
-	BIO_free_all(b64);
 	free(sigbuf);
 	return headers;
 }

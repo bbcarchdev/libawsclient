@@ -18,9 +18,6 @@
 #ifndef P_LIBS3CLIENT_H_
 # define P_LIBS3CLIENT_H_               1
 
-# define _BSD_SOURCE                    1
-# define _DARWIN_C_SOURCE               1
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -30,10 +27,16 @@
 # include <syslog.h>
 
 # include <curl/curl.h>
-# include <openssl/hmac.h>
-# include <openssl/evp.h>
-# include <openssl/bio.h>
-# include <openssl/buffer.h>
+
+# ifdef WITH_COMMONCRYPTO
+#  define COMMON_DIGEST_FOR_OPENSSL
+#  include <CommonCrypto/CommonCrypto.h>
+# else
+#  include <openssl/hmac.h>
+#  include <openssl/evp.h>
+#  include <openssl/bio.h>
+#  include <openssl/buffer.h>
+# endif
 
 # include "libs3client.h"
 
@@ -60,5 +63,7 @@ struct s3_request_struct
 };
 
 void s3_logf_(S3BUCKET *bucket, int prio, const char *format, ...);
+int s3_base64_encode_(const void *data, int size, uint8_t * buffer);
+uint8_t *s3_base64_decode_(uint8_t * str, void *data, int *datalen);
 
 #endif /*!P_LIBS3CLIENT_H_*/
