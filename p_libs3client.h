@@ -20,12 +20,13 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <stdint.h>
 # include <string.h>
 # include <time.h>
 # include <errno.h>
 # include <ctype.h>
 # include <syslog.h>
-
+# include <sys/types.h>
 # include <curl/curl.h>
 
 # ifdef WITH_COMMONCRYPTO
