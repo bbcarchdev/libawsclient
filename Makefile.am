@@ -27,3 +27,6 @@ libs3client_la_LIBADD = \
 	$(LIBCURL_LOCAL_LIBS) $(LIBCURL_LIBS) \
 	$(OPENSSL_LOCAL_LIBS) $(OPENSSL_LIBS) \
 	$(LIBURI_LOCAL_LIBS) $(LIBURI_LIBS)
+
+checkout:
+	@true
