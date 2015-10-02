@@ -12,5 +12,5 @@ Description: Library for interfacing with Amazon Web Services
 
 Package: libawsclient-dev
 Architecture: any
-Depends: ${misc:Depends}, libawsclient (= ${binary:Version}), libcurl4-openssl-dev, liburi-dev, libssl-dev
+Depends: ${misc:Depends}, libawsclient (= ${binary:Version}), libcurl-dev, liburi-dev, libssl-dev
 Description: Library for interfacing with Amazon Web Services (development files)
