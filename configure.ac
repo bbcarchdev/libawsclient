@@ -17,6 +17,9 @@
 ##  limitations under the License.
 
 AC_INIT([libawsclient],m4_esyscmd([/bin/sh m4/get-version.sh]),[RESFeedback@bbc.co.uk],,[https://github.com/bbcarchdev/libawsclient])
+PACKAGE_DESC='A library for interfacing with Amazon Web Services'
+AC_SUBST([PACKAGE_DESC])
+
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign])
 AM_MAINTAINER_MODE
@@ -46,6 +49,8 @@ BT_DEFINE_PREFIX
 
 AC_CONFIG_FILES([Makefile
 m4/Makefile
+libawsclient.pc
+libawsclient-uninstalled.pc
 ])
 
 AC_OUTPUT

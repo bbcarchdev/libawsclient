@@ -22,6 +22,14 @@ EXTRA_DIST = README.md
 
 AM_CPPFLAGS = @AM_CPPFLAGS@ $(LIBCURL_CPPFLAGS) $(OPENSSL_CPPFLAGS)
 
+DISTCLEANFILES = libawsclient.pc libawsclient-uninstalled.pc
+
+pkgconfigdir = $(libdir)/pkgconfig
+
+noinst_DATA = libawsclient-uninstalled.pc
+
+pkgconfig_DATA = libawsclient.pc
+
 lib_LTLIBRARIES = libawsclient.la
 
 include_HEADERS = libawsclient.h libs3client.h
