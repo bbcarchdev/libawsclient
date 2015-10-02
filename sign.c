@@ -19,13 +19,13 @@
 # include "config.h"
 #endif
 
-#include "p_libs3client.h"
+#include "p_libawsclient.h"
 
 #ifndef CC_SHA1_DIGEST_LENGTH
 # define CC_SHA1_DIGEST_LENGTH         20
 #endif
 
-static int s3_header_sort_(const void *a, const void *b);
+static int aws_header_sort_(const void *a, const void *b);
 
 static char *
 stradd(char *dest, const char *src)
@@ -36,7 +36,7 @@ stradd(char *dest, const char *src)
 
 
 struct curl_slist *
-s3_sign(const char *method, const char *resource, const char *access_key, const char *secret, struct curl_slist *headers)
+aws_s3_sign(const char *method, const char *resource, const char *access_key, const char *secret, struct curl_slist *headers)
 {
 	const char *type, *md5, *date, *adate, *hp;
 	size_t len, amzlen, amzcount, c, l;
@@ -157,7 +157,7 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 				s++;
 			}
 		}
-		qsort(amzhdr, amzcount, sizeof(char *), s3_header_sort_);
+		qsort(amzhdr, amzcount, sizeof(char *), aws_header_sort_);
 		for(c = 0; c < amzcount; c++)
 		{			
 			hp = strchr(amzhdr[c], ':');
@@ -194,14 +194,14 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 	t = stradd(t, access_key);
 	*t = ':';
 	t++;
-	s3_base64_encode_(digest, digestlen, (uint8_t *) t);
+	aws_base64_encode_(digest, digestlen, (uint8_t *) t);
 	headers = curl_slist_append(headers, sigbuf);
 	free(sigbuf);
 	return headers;
 }
 
 static int
-s3_header_sort_(const void *a, const void *b)
+aws_header_sort_(const void *a, const void *b)
 {
 	const char **stra, **strb;
 

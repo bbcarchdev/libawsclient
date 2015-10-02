@@ -4,9 +4,6 @@ services which expose the same API (such as [RADOS](http://ceph.com/docs/master/
 It was originally written as part of [Anansi](https://github.com/bbcarchdev/anansi),
 but has been split into a separate project to facilitiate reuse.
 
-It depends upon [libcurl](http://curl.haxx.se/libcurl/) and
-[OpenSSL](https://www.openssl.org/).
+It depends upon [libcurl](http://curl.haxx.se/libcurl/), [liburi](https://bbcarchdev.github.io/liburi/) and
+[OpenSSL](https://www.openssl.org/) (except on Mac OS X, where CommonCrypto is used instead).
 
-Note that at present this is not a standalone configurable project - it
-is currently built as a convenience library within existing projects, but
-this will likely change in the future.

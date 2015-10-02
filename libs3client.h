@@ -18,62 +18,31 @@
 #ifndef LIBS3CLIENT_H_
 # define LIBS3CLIENT_H_                 1
 
-# include <stdarg.h>
-# include <curl/curl.h>
+# warning <libs3client.h> is deprecated; use <libawsclient.h> instead.
 
-typedef struct s3_bucket_struct S3BUCKET;
-typedef struct s3_request_struct S3REQUEST;
+# include <libawsclient.h>
 
-/* Create an object representing an S3 bucket */
-S3BUCKET *s3_create(const char *bucket);
+typedef struct aws_s3_bucket_struct S3BUCKET;
+typedef struct aws_request_struct S3REQUEST;
 
-/* Free the resources used by a bucket */
-int s3_destroy(S3BUCKET *bucket);
-
-/* Set the logging function to use for this bucket */
-int s3_set_logger(S3BUCKET *bucket, void (*logger)(int prio, const char *format, va_list ap));
-
-/* Set the name of the S3 bucket */
-int s3_set_bucket(S3BUCKET *bucket, const char *name);
-
-/* Set the access key to be used in requests for this bucket */
-int s3_set_access(S3BUCKET *bucket, const char *key);
-
-/* Set the secret to be used in requests for this bucket */
-int s3_set_secret(S3BUCKET *bucket, const char *key);
-
-/* Set the endpoint to be used (in place of s3.amazonaws.com) */
-int s3_set_endpoint(S3BUCKET *bucket, const char *host);
-
-/* Set the base path to be used for all requests to this bucket */
-int s3_set_basepath(S3BUCKET *bucket, const char *path);
-
-/* Create a new request for a resource within a bucket */
-S3REQUEST *s3_request_create(S3BUCKET *bucket, const char *resource, const char *method);
-
-/* Destroy a request */
-int s3_request_destroy(S3REQUEST *request);
-
-/* Finalise (sign) a request */
-int s3_request_finalise(S3REQUEST *request);
-
-/* Perform a request, finalising if needed */
-int s3_request_perform(S3REQUEST *request);
-
-/* Obtain (creating if needed) the cURL handle for this request */
-CURL *s3_request_curl(S3REQUEST *request);
-
-/* Obtain the headers list for this request */
-struct curl_slist *s3_request_headers(S3REQUEST *request);
-
-/* Set the headers list for this request (the list will be freed upon
- * request destruction).
- */
-int s3_request_set_headers(S3REQUEST *request, struct curl_slist *headers);
-
-/* Sign an AWS request, appending a suitable 'Authorization: AWS ...' header
- * to the list provided.
- */
-struct curl_slist *s3_sign(const char *method, const char *resource, const char *access_key, const char *secret, struct curl_slist *headers);
+# define s3_create(bucket)             aws_s3_create(bucket)
+# define s3_destroy(bucket)            aws_s3_destroy(bucket)
+# define s3_set_logger(bucket, fn)     aws_s3_set_logger(bucket, fn)
+# define s3_set_bucket(bucket, name)   aws_s3_set_bucket(bucket, name)
+# define s3_set_access(bucket, key)    aws_s3_set_access(bucket, key)
+# define s3_set_secret(bucket, key)    aws_s3_set_secret(bucket, key)
+# define s3_set_endpoint(bucket, host) aws_s3_set_endpoint(bucket, host)
+# define s3_set_basepath(bucket, path) aws_s3_set_basepath(bucket, path)
+# define s3_request_create(bucket, resource, method) \
+	aws_s3_request_create(bucket, resource, method)
+# define s3_request_destroy(request)   aws_request_destroy(request)
+# define s3_request_finalise(request)  aws_request_finalise(request)
+# define s3_request_perform(request)   aws_request_perform(request)
+# define s3_request_curl(request)      aws_request_curl(request)
+# define s3_request_headers(request)   aws_request_headers(request)
+# define s3_request_set_headers(request, headers) \
+	aws_request_set_headers(request, headers)
+# define s3_sign(method, resource, access_key, secret, headers) \
+	aws_s3_sign(method, resource, access_key, secret, headers)
 
 #endif /*!LIBS3CLIENT_H_*/

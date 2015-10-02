@@ -74,7 +74,7 @@
 # include "config.h"
 #endif
 
-#include "p_libs3client.h"
+#include "p_libawsclient.h"
 
 static char base64_chars[] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -93,7 +93,7 @@ pos(char c)
 }
 
 int
-s3_base64_encode_(const void *data, int size, uint8_t* buffer)
+aws_base64_encode_(const void *data, int size, uint8_t* buffer)
 {
 	uint8_t *p;
 	int i;
@@ -162,7 +162,7 @@ token_decode(uint8_t * token)
 
 
 uint8_t *
-s3_base64_decode_(uint8_t * str, void *data, int *datalen)
+aws_base64_decode_(uint8_t * str, void *data, int *datalen)
 {
 	uint8_t *p, *q;
 	uint32_t marker = 0;

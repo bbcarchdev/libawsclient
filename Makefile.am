@@ -14,19 +14,25 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
+ACLOCAL_AMFLAGS = -I m4
+
+DIST_SUBDIRS = m4
+
 EXTRA_DIST = README.md
 
 AM_CPPFLAGS = @AM_CPPFLAGS@ $(LIBCURL_CPPFLAGS) $(OPENSSL_CPPFLAGS)
 
-noinst_LTLIBRARIES = libs3client.la
+lib_LTLIBRARIES = libawsclient.la
 
-libs3client_la_SOURCES = libs3client.h p_libs3client.h \
+libawsclient_la_SOURCES = libawsclient.h libs3client.h p_libawsclient.h \
 	base64.c sign.c bucket.c request.c
 
-libs3client_la_LIBADD = \
+libawsclient_la_LIBADD = \
 	$(LIBCURL_LOCAL_LIBS) $(LIBCURL_LIBS) \
 	$(OPENSSL_LOCAL_LIBS) $(OPENSSL_LIBS) \
 	$(LIBURI_LOCAL_LIBS) $(LIBURI_LIBS)
+
+libawsclient_la_LDFLAGS = -avoid-version
 
 checkout:
 	@true

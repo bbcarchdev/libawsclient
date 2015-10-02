@@ -19,15 +19,15 @@
 # include "config.h"
 #endif
 
-#include "p_libs3client.h"
+#include "p_libawsclient.h"
 
 /* Create an object representing an S3 bucket */
-S3BUCKET *
-s3_create(const char *bucket)
+AWSS3BUCKET *
+aws_s3_create(const char *bucket)
 {
-	S3BUCKET *p;
+	AWSS3BUCKET *p;
 
-	p = (S3BUCKET *) calloc(1, sizeof(S3BUCKET));
+	p = (AWSS3BUCKET *) calloc(1, sizeof(AWSS3BUCKET));
 	if(!p)
 	{
 		return NULL;
@@ -36,7 +36,7 @@ s3_create(const char *bucket)
 	p->endpoint = strdup(S3_DEFAULT_ENDPOINT);
 	if(!p->bucket || !p->endpoint)
 	{
-		s3_destroy(p);
+		aws_s3_destroy(p);
 		return NULL;
 	}
 	p->logger = vsyslog;
@@ -45,7 +45,7 @@ s3_create(const char *bucket)
 
 /* Free the resources used by a bucket */
 int
-s3_destroy(S3BUCKET *bucket)
+aws_s3_destroy(AWSS3BUCKET *bucket)
 {
 	if(!bucket)
 	{
@@ -63,7 +63,7 @@ s3_destroy(S3BUCKET *bucket)
 
 /* Set the name of the S3 bucket */
 int
-s3_set_bucket(S3BUCKET *bucket, const char *name)
+aws_s3_set_bucket(AWSS3BUCKET *bucket, const char *name)
 {
 	char *p;
 
@@ -79,7 +79,7 @@ s3_set_bucket(S3BUCKET *bucket, const char *name)
 
 /* Set the access key to be used in requests for this bucket */
 int
-s3_set_access(S3BUCKET *bucket, const char *key)
+aws_s3_set_access(AWSS3BUCKET *bucket, const char *key)
 {
 	char *p;
 
@@ -95,7 +95,7 @@ s3_set_access(S3BUCKET *bucket, const char *key)
 
 /* Set the secret to be used in requests for this bucket */
 int
-s3_set_secret(S3BUCKET *bucket, const char *key)
+aws_s3_set_secret(AWSS3BUCKET *bucket, const char *key)
 {
 	char *p;
 
@@ -111,7 +111,7 @@ s3_set_secret(S3BUCKET *bucket, const char *key)
 
 /* Set the endpoint to be used (in place of s3.amazonaws.com) */
 int
-s3_set_endpoint(S3BUCKET *bucket, const char *host)
+aws_s3_set_endpoint(AWSS3BUCKET *bucket, const char *host)
 {
 	char *p;
 
@@ -127,7 +127,7 @@ s3_set_endpoint(S3BUCKET *bucket, const char *host)
 
 /* Set the base path to be used in future requests */
 int
-s3_set_basepath(S3BUCKET *bucket, const char *path)
+aws_s3_set_basepath(AWSS3BUCKET *bucket, const char *path)
 {
 	char *p;
 
@@ -143,7 +143,7 @@ s3_set_basepath(S3BUCKET *bucket, const char *path)
 
 /* Set the logging function */
 int
-s3_set_logger(S3BUCKET *bucket, void (*logger)())
+aws_s3_set_logger(AWSS3BUCKET *bucket, void (*logger)())
 {
 	if(!logger)
 	{
@@ -157,7 +157,7 @@ s3_set_logger(S3BUCKET *bucket, void (*logger)())
 }
 
 void
-s3_logf_(S3BUCKET *bucket, int prio, const char *format, ...)
+aws_s3_logf_(AWSS3BUCKET *bucket, int prio, const char *format, ...)
 {
 	va_list ap;
 

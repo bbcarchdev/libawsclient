@@ -15,8 +15,8 @@
  *  limitations under the License.
  */
 
-#ifndef P_LIBS3CLIENT_H_
-# define P_LIBS3CLIENT_H_               1
+#ifndef P_LIBAWSCLIENT_H_
+# define P_LIBAWSCLIENT_H_             1
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -39,11 +39,11 @@
 #  include <openssl/buffer.h>
 # endif
 
-# include "libs3client.h"
+# include "libawsclient.h"
 
 # define S3_DEFAULT_ENDPOINT            "s3.amazonaws.com"
 
-struct s3_bucket_struct
+struct aws_s3_bucket_struct
 {
 	char *bucket;
 	char *access;
@@ -53,9 +53,9 @@ struct s3_bucket_struct
 	void (*logger)(int prio, const char *format, va_list ap);
 };
 
-struct s3_request_struct
+struct aws_request_struct
 {
-	S3BUCKET *bucket;
+	AWSS3BUCKET *bucket;
 	char *resource;
 	char *method;
 	CURL *ch;
@@ -63,8 +63,9 @@ struct s3_request_struct
 	int finalised;
 };
 
-void s3_logf_(S3BUCKET *bucket, int prio, const char *format, ...);
-int s3_base64_encode_(const void *data, int size, uint8_t * buffer);
-uint8_t *s3_base64_decode_(uint8_t * str, void *data, int *datalen);
+void aws_s3_logf_(AWSS3BUCKET *bucket, int prio, const char *format, ...);
 
-#endif /*!P_LIBS3CLIENT_H_*/
+int aws_base64_encode_(const void *data, int size, uint8_t * buffer);
+uint8_t *aws_base64_decode_(uint8_t * str, void *data, int *datalen);
+
+#endif /*!P_LIBAWSCLIENT_H_*/

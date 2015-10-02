@@ -19,15 +19,15 @@
 # include "config.h"
 #endif
 
-#include "p_libs3client.h"
+#include "p_libawsclient.h"
 
 /* Create a new request for a resource within a bucket */
-S3REQUEST *
-s3_request_create(S3BUCKET *bucket, const char *resource, const char *method)
+AWSREQUEST *
+aws_s3_request_create(AWSS3BUCKET *bucket, const char *resource, const char *method)
 {
-	S3REQUEST *p;
+	AWSREQUEST *p;
 
-	p = (S3REQUEST *) calloc(1, sizeof(S3REQUEST));
+	p = (AWSREQUEST *) calloc(1, sizeof(AWSREQUEST));
 	if(!p)
 	{
 		return NULL;
@@ -37,7 +37,7 @@ s3_request_create(S3BUCKET *bucket, const char *resource, const char *method)
 	p->method = strdup(method);
 	if(!p->resource || !p->method)
 	{
-		s3_request_destroy(p);
+		aws_request_destroy(p);
 		return NULL;
 	}
 	return p;
@@ -45,7 +45,7 @@ s3_request_create(S3BUCKET *bucket, const char *resource, const char *method)
 
 /* Destroy a request */
 int
-s3_request_destroy(S3REQUEST *req)
+aws_request_destroy(AWSREQUEST *req)
 {
 	if(!req)
 	{
@@ -68,7 +68,7 @@ s3_request_destroy(S3REQUEST *req)
 
 /* Finalise (sign) a request */
 int
-s3_request_finalise(S3REQUEST *req)
+aws_request_finalise(AWSREQUEST *req)
 {
 	CURL *ch;
 	struct curl_slist *headers;
@@ -78,14 +78,14 @@ s3_request_finalise(S3REQUEST *req)
 
 	if(req->finalised || !req->bucket->access || !req->bucket->secret || !req->bucket->bucket)
 	{
-		s3_logf_(req->bucket, LOG_ERR, "S3: bucket details (access key, secret key, or bucket name) are missing\n");
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket details (access key, secret key, or bucket name) are missing\n");
 		errno = EINVAL;
 		return -1;
 	}
-	ch = s3_request_curl(req);
+	ch = aws_request_curl(req);
 	if(!ch)
 	{
-		s3_logf_(req->bucket, LOG_ERR, "S3: failed to create cURL handle\n");
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to create cURL handle\n");
 		return -1;
 	}
 	/* The resource path is signed in the request, and takes the form:
@@ -95,7 +95,7 @@ s3_request_finalise(S3REQUEST *req)
 	resource = (char *) calloc(1, l);
 	if(!resource)
 	{
-		s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for request-uri\n");
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for request-uri\n");
 		return -1;
 	}
 	p = resource;
@@ -140,7 +140,7 @@ s3_request_finalise(S3REQUEST *req)
 	url = (char *) calloc(1, l);
 	if(!url)
 	{
-		s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for S3 URL\n");
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for S3 URL\n");
 		free(resource);
 		return -1;
 	}
@@ -151,10 +151,10 @@ s3_request_finalise(S3REQUEST *req)
 	p += strlen(req->bucket->endpoint);
 	strcpy(p, resource);
 	
-	headers = s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, s3_request_headers(req));
+	headers = aws_s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, aws_request_headers(req));
 	if(!headers)
 	{
-		s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
 		return -1;
 	}
 	req->finalised = 1;
@@ -169,13 +169,13 @@ s3_request_finalise(S3REQUEST *req)
 
 /* Perform a request, finalising if needed */
 int
-s3_request_perform(S3REQUEST *req)
+aws_request_perform(AWSREQUEST *req)
 {
 	int e;
 
 	if(!req->finalised)
 	{
-		if(s3_request_finalise(req))
+		if(aws_request_finalise(req))
 		{
 			return CURLE_FAILED_INIT;
 		}
@@ -189,7 +189,7 @@ s3_request_perform(S3REQUEST *req)
 
 /* Obtain (creating if needed) the cURL handle for this request */
 CURL *
-s3_request_curl(S3REQUEST *request)
+aws_request_curl(AWSREQUEST *request)
 {
 	if(!request->ch)
 	{
@@ -204,7 +204,7 @@ s3_request_curl(S3REQUEST *request)
 
 /* Obtain the headers list for this request */
 struct curl_slist *
-s3_request_headers(S3REQUEST *request)
+aws_request_headers(AWSREQUEST *request)
 {
 	return request->headers;
 }
@@ -213,7 +213,7 @@ s3_request_headers(S3REQUEST *request)
  * request destruction).
  */
 int
-s3_request_set_headers(S3REQUEST *request, struct curl_slist *headers)
+aws_request_set_headers(AWSREQUEST *request, struct curl_slist *headers)
 {
 	request->headers = headers;
 	return 0;
