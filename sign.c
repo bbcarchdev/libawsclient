@@ -189,12 +189,12 @@ s3_sign(const char *method, const char *resource, const char *access_key, const 
 #endif
 	free(buf);
 
-	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 8);
+	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 9);
 	t = stradd(sigbuf, "Authorization: AWS ");
 	t = stradd(t, access_key);
 	*t = ':';
 	t++;
-	s3_base64_encode_(digest, digestlen, (uint8_t *) sigbuf);
+	s3_base64_encode_(digest, digestlen, (uint8_t *) t);
 	headers = curl_slist_append(headers, sigbuf);
 	free(sigbuf);
 	return headers;
