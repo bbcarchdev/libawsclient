@@ -24,7 +24,9 @@ AM_CPPFLAGS = @AM_CPPFLAGS@ $(LIBCURL_CPPFLAGS) $(OPENSSL_CPPFLAGS)
 
 lib_LTLIBRARIES = libawsclient.la
 
-libawsclient_la_SOURCES = libawsclient.h libs3client.h p_libawsclient.h \
+include_HEADERS = libawsclient.h libs3client.h
+
+libawsclient_la_SOURCES = p_libawsclient.h \
 	base64.c sign.c bucket.c request.c
 
 libawsclient_la_LIBADD = \
