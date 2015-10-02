@@ -1,3 +1,4 @@
 usr/lib/libawsclient.a
 usr/include/libawsclient.h
 usr/include/libs3client.h
+usr/lib/pkgconfig/libawsclient.pc
