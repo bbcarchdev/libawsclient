@@ -47,7 +47,7 @@ libawsclient_la_LDFLAGS = -avoid-version
 BRANCH ?= develop
 # DOCS_BRANCH ?= gh-pages
 
-DEVELOP_SUBMODULES = m4 libsupport
+DEVELOP_SUBMODULES = m4
 # DOCS_SUBMODULES = docs docbook-html5
 
 checkout:
