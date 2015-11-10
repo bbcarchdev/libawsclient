@@ -34,6 +34,10 @@ lib_LTLIBRARIES = libawsclient.la
 
 include_HEADERS = libawsclient.h libs3client.h
 
+bin_PROGRAMS = s3cat
+
+s3cat_LDADD = libawsclient.la
+
 libawsclient_la_SOURCES = p_libawsclient.h \
 	base64.c sign.c bucket.c request.c
 

@@ -30,3 +30,4 @@ autom4te.cache
 /missing
 /stamp-h1
 /compile
+/s3cat

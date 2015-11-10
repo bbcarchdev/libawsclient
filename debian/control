@@ -5,6 +5,11 @@ Maintainer: Mo McRoberts <mo.mcroberts@bbc.co.uk>
 Build-Depends: debhelper (>= 8.0.0), pkg-config, autoconf, automake, libtool, libcurl4-openssl-dev, liburi-dev, libssl-dev
 Standards-Version: 3.9.3
 
+Package: awsclient-utils
+Architecture: any
+Depends: libawsclient (= ${binary:Version})
+Description: Command-line utilities which acocmpany libawsclient
+
 Package: libawsclient
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}, liburi, libcurl3, libssl1.0.0

@@ -108,6 +108,7 @@ aws_request_finalise(AWSREQUEST *req)
 	t = NULL;
 	if(req->bucket->basepath)
 	{
+		/* Skip leading slashes, as there's already a trailing slash */
 		t = req->bucket->basepath;
 		while(*t == '/')
 		{
@@ -120,8 +121,10 @@ aws_request_finalise(AWSREQUEST *req)
 	}
 	if(t)
 	{
+		/* There's a non-empty base path */
 		strcpy(p, t);
 		p += strlen(t) - 1;
+		/* If there isn't a trailing slash, add one */
 		if(*p != '/')
 		{
 			p++;
@@ -130,12 +133,16 @@ aws_request_finalise(AWSREQUEST *req)
 		p++;
 	}
 	t = req->resource;
+	/* Skip leading slashes in the resource path */
 	while(*t == '/')
 	{
 		t++;
 	}
 	strcpy(p, t);
-	/* The URL is s3://{endpoint}{resource} */	
+	/* The URL is http://{endpoint}{resource}
+	 * endpoint is just a hostname (or conceivably, hostname:port)
+	 * resource, created above, always has a leading slash
+	 */
 	l += 7 + strlen(req->bucket->endpoint) + 1;
 	url = (char *) calloc(1, l);
 	if(!url)
