@@ -189,7 +189,7 @@ aws_s3_sign(const char *method, const char *resource, const char *access_key, co
 #endif
 	free(buf);
 
-	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 9);
+	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 20);
 	t = stradd(sigbuf, "Authorization: AWS ");
 	t = stradd(t, access_key);
 	*t = ':';
