@@ -92,7 +92,7 @@ aws_request_finalise(AWSREQUEST *req)
 	 * /{bucket}/[{basepath}]/{resource}
 	 */
 	l = 1 + strlen(req->bucket->bucket) + 1 + (req->bucket->basepath ? strlen(req->bucket->basepath) : 0) + 1 + strlen(req->resource) + 1;
-	resource = (char *) calloc(1, l);
+	resource = (char *) calloc(1, l + 16);
 	if(!resource)
 	{
 		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for request-uri\n");
@@ -144,7 +144,7 @@ aws_request_finalise(AWSREQUEST *req)
 	 * resource, created above, always has a leading slash
 	 */
 	l += 7 + strlen(req->bucket->endpoint) + 1;
-	url = (char *) calloc(1, l);
+	url = (char *) calloc(1, l + 16);
 	if(!url)
 	{
 		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for S3 URL\n");

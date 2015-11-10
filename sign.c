@@ -101,7 +101,7 @@ aws_s3_sign(const char *method, const char *resource, const char *access_key, co
 		date = &(datebuf[6]);
 	}
 	len += amzlen + strlen(type) + strlen(md5) + strlen(date) + 2;
-	buf = (char *) calloc(1, len + 1);
+	buf = (char *) calloc(1, len + 16);
 	if(!buf)
 	{
 		return NULL;
@@ -122,7 +122,7 @@ aws_s3_sign(const char *method, const char *resource, const char *access_key, co
 	{
 		/* Build an array of x-amz-* headers, excluding x-amz-date */
 		amzhdr = (char **) calloc(amzcount, sizeof(char *));
-		amzbuf = (char *) calloc(1, amzlen + 1);
+		amzbuf = (char *) calloc(1, amzlen + 16);
 		s = amzbuf;
 		amzcount = 0;
 		for(p = headers; p; p = p->next)
@@ -189,7 +189,7 @@ aws_s3_sign(const char *method, const char *resource, const char *access_key, co
 #endif
 	free(buf);
 
-	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 20);
+	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 20 + 16);
 	t = stradd(sigbuf, "Authorization: AWS ");
 	t = stradd(t, access_key);
 	*t = ':';
