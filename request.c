@@ -162,6 +162,8 @@ aws_request_finalise(AWSREQUEST *req)
 	if(!headers)
 	{
 		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
+		free(url);
+		free(resource);
 		return -1;
 	}
 	req->finalised = 1;
