@@ -55,6 +55,8 @@ main(int argc, char **argv)
 		return 1;
 	}
 	ch = aws_request_curl(request);
+	curl_easy_setopt(ch, CURLOPT_HEADER, 0);
+	curl_easy_setopt(ch, CURLOPT_NOSIGNAL, 1);
 	if(verbose)
 	{
 		curl_easy_setopt(ch, CURLOPT_VERBOSE, 1);
@@ -109,14 +111,14 @@ process_args(int argc, char **argv)
 	{
 		short_progname = argv[0];
 	}
-	while((c = getopt(argc, argv, "hva:s:e:")) != -1)
+	while((c = getopt(argc, argv, "hda:s:e:")) != -1)
 	{
 		switch(c)
 		{
 		case 'h':
 			usage();
 			exit(0);
-		case 'v':
+		case 'd':
 			verbose = 1;
 			break;
 		case 'a':
@@ -178,7 +180,7 @@ usage(void)
 		   "\n"
 		   "OPTIONS is one or more of:\n"
 		   "  -h                  Print this message and exit\n"
-		   "  -v                  Enable verbose (debugging) output\n"
+		   "  -d                  Enable debugging output\n"
 		   "  -a KEY              Specify access key\n"
 		   "  -s KEY              Specify secret key\n"
 		   "  -e HOSTNAME         Specify alternative S3 endpoint\n",
