@@ -103,7 +103,6 @@ aws_base64_encode_(const void *data, int size, uint8_t* buffer)
 	p = buffer;
 	q = (const uint8_t *) data;
 
-	i = 0;
 	for (i = 0; i < size;) {
 		c = q[i++];
 		c *= 256;
