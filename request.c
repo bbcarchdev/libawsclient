@@ -54,6 +54,7 @@ aws_request_destroy(AWSREQUEST *req)
 	}
 	free(req->resource);
 	free(req->method);
+	free(req->url);
 	if(req->ch)
 	{
 		curl_easy_cleanup(req->ch);
@@ -157,22 +158,21 @@ aws_request_finalise(AWSREQUEST *req)
 	strcpy(p, req->bucket->endpoint);
 	p += strlen(req->bucket->endpoint);
 	strcpy(p, resource);
-	
+	free(req->url);
+	req->url = url;
 	headers = aws_s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, aws_request_headers(req));
 	if(!headers)
 	{
 		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
-		free(url);
 		free(resource);
 		return -1;
 	}
 	req->finalised = 1;
 	req->headers = headers;
-	curl_easy_setopt(ch, CURLOPT_HTTPHEADER, headers);
-	curl_easy_setopt(ch, CURLOPT_URL, url);
+	curl_easy_setopt(ch, CURLOPT_HTTPHEADER, req->headers);
+	curl_easy_setopt(ch, CURLOPT_URL, req->url);
 	curl_easy_setopt(ch, CURLOPT_CUSTOMREQUEST, req->method);
 	free(resource);
-	free(url);
 	return 0;
 }
 

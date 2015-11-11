@@ -58,6 +58,7 @@ struct aws_request_struct
 	AWSS3BUCKET *bucket;
 	char *resource;
 	char *method;
+	char *url;
 	CURL *ch;
 	struct curl_slist *headers;
 	int finalised;
