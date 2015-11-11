@@ -2,7 +2,7 @@ Source: libawsclient
 Section: web
 Priority: extra
 Maintainer: Mo McRoberts <mo.mcroberts@bbc.co.uk>
-Build-Depends: debhelper (>= 8.0.0), pkg-config, autoconf, automake, libtool, libcurl4-openssl-dev, liburi-dev, libssl-dev
+Build-Depends: debhelper (>= 8.0.0), pkg-config, autoconf, automake, libtool, libcurl4-gnutls-dev, liburi-dev, libssl-dev
 Standards-Version: 3.9.3
 
 Package: awsclient-utils
@@ -12,10 +12,10 @@ Description: Command-line utilities which acocmpany libawsclient
 
 Package: libawsclient
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, liburi, libcurl3, libssl1.0.0
+Depends: ${misc:Depends}, ${shlibs:Depends}, liburi, libssl1.0.0
 Description: Library for interfacing with Amazon Web Services
 
 Package: libawsclient-dev
 Architecture: any
-Depends: ${misc:Depends}, libawsclient (= ${binary:Version}), libcurl-dev, liburi-dev, libssl-dev
+Depends: ${misc:Depends}, libawsclient (= ${binary:Version}), libcurl4-gnutls-dev, liburi-dev, libssl-dev
 Description: Library for interfacing with Amazon Web Services (development files)
