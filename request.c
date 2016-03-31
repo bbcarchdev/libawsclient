@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014-2015 BBC
+ * Copyright (c) 2014-2016 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -76,10 +76,30 @@ aws_request_finalise(AWSREQUEST *req)
 	size_t l;
 	char *resource, *url, *p;
 	const char *t;
+	int r;
 
-	if(req->finalised || !req->bucket->access || !req->bucket->secret || !req->bucket->bucket)
+	if(req->finalised)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket details (access key, secret key, or bucket name) are missing\n");
+		return 0;
+	}
+	r = 0;  
+	if(!req->bucket->bucket)
+	{
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket name is missing from request\n");
+		r = -1;
+	}
+	if(!req->bucket->access)
+	{
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket access key is missing from request\n");
+		r = -1;
+	}
+	if(!req->bucket->secret)
+	{
+		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket secret key is missing from request\n");
+		r = -1;
+	}
+	if(r)
+	{
 		errno = EINVAL;
 		return -1;
 	}
