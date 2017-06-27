@@ -23,6 +23,69 @@
 
 /* Create an object representing an S3 bucket */
 AWSS3BUCKET *
+aws_s3_create_uri(URI *uri)
+{
+	AWSS3BUCKET *bucket;
+	URI_INFO *info;
+	
+	info = uri_info(uri);
+	if(!info)
+	{
+		fprintf(stderr, "S3: failed to extract information from URI\n");
+		return NULL;
+	}
+	if(info->scheme && info->scheme[0] && strcasecmp(info->scheme, "s3"))
+	{
+		fprintf(stderr, "S3: provided URI is not an S3 URI (<s3://...>)\n");
+		uri_info_destroy(info);
+		return NULL;
+	}
+	if(!info->host)
+	{
+		fprintf(stderr, "S3: no bucket name provided in S3 URI\n");
+		uri_info_destroy(info);
+		return NULL;
+	}
+	bucket = aws_s3_create(info->host);
+	if(!bucket)
+	{
+		uri_info_destroy(info);
+		return NULL;
+	}
+	if(info->user)
+	{
+		aws_s3_set_access(bucket, info->user);
+	}
+	if(info->pass)
+	{
+		aws_s3_set_secret(bucket, info->pass);	
+	}
+	if(info->query)
+	{
+		fprintf(stderr, "S3: query is '%s'\n", info->query);
+	}
+	uri_info_destroy(info);
+	return bucket;
+}
+
+AWSS3BUCKET *
+aws_s3_create_uristr(const char *uristr)
+{
+	URI *uri;
+	AWSS3BUCKET *bucket;
+	
+	uri = uri_create_str(uristr, NULL);
+	if(!uri)
+	{
+		fprintf(stderr, "S3: failed to parse URI\n");
+		return NULL;
+	}
+	bucket = aws_s3_create_uri(uri);
+	uri_destroy(uri);
+	return bucket;
+}
+
+AWSS3BUCKET *
 aws_s3_create(const char *bucket)
 {
 	AWSS3BUCKET *p;
@@ -36,6 +99,7 @@ aws_s3_create(const char *bucket)
 	p->endpoint = strdup(S3_DEFAULT_ENDPOINT);
 	if(!p->bucket || !p->endpoint)
 	{
+		syslog(LOG_ERR, "S3: failed to duplicate bucket ('%s') or endpoint ('%s') strings while creating bucket instance\n", bucket, S3_DEFAULT_ENDPOINT);
 		aws_s3_destroy(p);
 		return NULL;
 	}
@@ -75,6 +139,13 @@ aws_s3_set_bucket(AWSS3BUCKET *bucket, const char *name)
 	free(bucket->bucket);
 	bucket->bucket = p;
 	return 0;
+}
+
+/* Obtain the name of the S3 bucket */
+const char *
+aws_s3_bucket(AWSS3BUCKET *bucket)
+{
+	return bucket->bucket;
 }
 
 /* Set the access key to be used in requests for this bucket */

@@ -21,11 +21,17 @@
 # include <stdarg.h>
 # include <curl/curl.h>
 
+# ifndef LIBURI_H_
+typedef struct uri_struct URI;
+# endif
+
 typedef struct aws_s3_bucket_struct AWSS3BUCKET;
 typedef struct aws_request_struct AWSREQUEST;
 
 /* Create an object representing an S3 bucket */
 AWSS3BUCKET *aws_s3_create(const char *bucket);
+AWSS3BUCKET *aws_s3_create_uri(URI *uri);
+AWSS3BUCKET *aws_s3_create_uristr(const char *uristr);
 
 /* Free the resources used by a bucket */
 int aws_s3_destroy(AWSS3BUCKET *bucket);
@@ -35,6 +41,9 @@ int aws_s3_set_logger(AWSS3BUCKET *bucket, void (*logger)(int prio, const char *
 
 /* Set the name of the S3 bucket */
 int aws_s3_set_bucket(AWSS3BUCKET *bucket, const char *name);
+
+/* Obtain the name of the S3 bucket */
+const char *aws_s3_bucket(AWSS3BUCKET *bucket);
 
 /* Set the access key to be used in requests for this bucket */
 int aws_s3_set_access(AWSS3BUCKET *bucket, const char *key);

@@ -9,7 +9,8 @@
 #include <curl/curl.h>
 #include "libawsclient.h"
 
-static const char *endpoint, *accesskey, *secretkey, *resource, *bucketname;
+static const char *endpoint, *accesskey, *secretkey, *resource;
+static char *bucketuri;
 static const char *short_progname = "s3cat";
 static int verbose;
 
@@ -30,19 +31,25 @@ main(int argc, char **argv)
 	{
 		return 1;
 	}
-	if(verbose)
-	{
-		fprintf(stderr, "%s: fetching resource '%s' from bucket '%s'\n", short_progname, resource, bucketname);
-	}
-	bucket = aws_s3_create(bucketname);
+	bucket = aws_s3_create_uristr(bucketuri);
 	if(!bucket)
 	{
-		fprintf(stderr, "%s: failed to create S3 bucket object\n", short_progname);
+		fprintf(stderr, "%s: failed to create S3 bucket object from <%s>\n", short_progname, bucketuri);
 		return 1;
 	}
+	if(verbose)
+	{
+		fprintf(stderr, "%s: fetching resource '%s' from <s3://%s>\n", short_progname, resource, aws_s3_bucket(bucket));
+	}
 	aws_s3_set_logger(bucket, logger);
-	aws_s3_set_access(bucket, accesskey);
-	aws_s3_set_secret(bucket, secretkey);
+	if(accesskey)
+	{
+		aws_s3_set_access(bucket, accesskey);
+	}
+	if(secretkey)
+	{
+		aws_s3_set_secret(bucket, secretkey);
+	}
 	if(endpoint)
 	{
 		aws_s3_set_endpoint(bucket, endpoint);
@@ -50,8 +57,9 @@ main(int argc, char **argv)
 	request = aws_s3_request_create(bucket, resource, "GET");
 	if(!request)
 	{
-		fprintf(stderr, "%s: failed to create S3 request object\n", short_progname);
+		fprintf(stderr, "%s: failed to create S3 request object for <s3://%s/%s>\n", short_progname, aws_s3_bucket(bucket), resource);
 		aws_s3_destroy(bucket);
+		free(bucketuri);
 		return 1;
 	}
 	ch = aws_request_curl(request);
@@ -148,8 +156,8 @@ process_args(int argc, char **argv)
 		usage();
 		return -1;
 	}
-	bucketname = argv[0] + 5;
-	t = strchr(bucketname, '/');
+	bucketuri = strdup(argv[0]);
+	t = strchr(argv[0] + 5, '/');
 	if(!t)
 	{
 		fprintf(stderr, "%s: no resource path provided in S3 URL\n", short_progname);
@@ -158,25 +166,13 @@ process_args(int argc, char **argv)
 	}
 	*t = 0;
 	resource = t + 1;
-	if(!accesskey)
-	{
-		fprintf(stderr, "%s: an access key must be provided using the '-a' option\n", short_progname);
-		usage();
-		return -1;
-	}
-	if(!secretkey)
-	{
-		fprintf(stderr, "%s: a secret key must be provided using the '-s' option\n", short_progname);
-		usage();
-		return -1;
-	}
 	return 0;
 }
 
 static void
 usage(void)
 {
-	printf("Usage: %s OPTIONS s3://BUCKET/RESOURCE"
+	printf("Usage: %s OPTIONS s3://BUCKET/RESOURCE[?params]"
 		   "\n"
 		   "OPTIONS is one or more of:\n"
 		   "  -h                  Print this message and exit\n"

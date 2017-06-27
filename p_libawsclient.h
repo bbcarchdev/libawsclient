@@ -28,6 +28,7 @@
 # include <syslog.h>
 # include <sys/types.h>
 # include <curl/curl.h>
+# include <liburi.h>
 
 # ifdef WITH_COMMONCRYPTO
 #  define COMMON_DIGEST_FOR_OPENSSL
