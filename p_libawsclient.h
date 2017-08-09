@@ -43,14 +43,18 @@
 # include "libawsclient.h"
 
 # define S3_DEFAULT_ENDPOINT            "s3.amazonaws.com"
+# define S3_DEFAULT_REGION              "us-east-1"
 
 struct aws_s3_bucket_struct
 {
+	int ver;
 	char *bucket;
 	char *access;
 	char *secret;
 	char *endpoint;
 	char *basepath;
+	char *region;
+	char *token;
 	void (*logger)(int prio, const char *format, va_list ap);
 };
 

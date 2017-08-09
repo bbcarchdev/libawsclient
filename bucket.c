@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014-2015 BBC
+ * Copyright (c) 2014-2017 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,9 +25,13 @@
 AWSS3BUCKET *
 aws_s3_create_uri(URI *uri)
 {
+	int defver;
 	AWSS3BUCKET *bucket;
 	URI_INFO *info;
+	const char *t;
+	intmax_t n;
 	
+	defver = 0;
 	info = uri_info(uri);
 	if(!info)
 	{
@@ -62,7 +66,30 @@ aws_s3_create_uri(URI *uri)
 	}
 	if(info->query)
 	{
-		fprintf(stderr, "S3: query is '%s'\n", info->query);
+		if((t = uri_info_get(info, "endpoint", NULL)))
+		{
+			aws_s3_set_endpoint(bucket, t);
+		}
+		if((t = uri_info_get(info, "token", NULL)))
+		{
+			aws_s3_set_token(bucket, t);
+		}
+		if((t = uri_info_get(info, "access", NULL)))
+		{
+			aws_s3_set_access(bucket, t);
+		}
+		if((t = uri_info_get(info, "secret", NULL)))
+		{
+			aws_s3_set_secret(bucket, t);
+		}
+		if((t = uri_info_get(info, "region", NULL)))
+		{
+			aws_s3_set_region(bucket, t);
+		}
+		if((n = uri_info_get_int(info, "ver", 0)))
+		{
+			aws_s3_set_version(bucket, (int) n);
+		}
 	}
 	uri_info_destroy(info);
 	return bucket;
@@ -121,6 +148,8 @@ aws_s3_destroy(AWSS3BUCKET *bucket)
 	free(bucket->secret);	
 	free(bucket->endpoint);
 	free(bucket->basepath);
+	free(bucket->region);
+	free(bucket->token);
 	free(bucket);
 	return 0;
 }
@@ -180,6 +209,26 @@ aws_s3_set_secret(AWSS3BUCKET *bucket, const char *key)
 	return 0;
 }
 
+/* Set the session token to be used in requests for this bucket */
+int
+aws_s3_set_token(AWSS3BUCKET *bucket, const char *token)
+{
+	char *p;
+
+	p = strdup(token);
+	if(!p)
+	{
+		return -1;
+	}
+	if(!bucket->ver)
+	{
+		bucket->ver = 4;
+	}
+	free(bucket->token);
+	bucket->token = p;
+	return 0;
+}
+
 /* Set the endpoint to be used (in place of s3.amazonaws.com) */
 int
 aws_s3_set_endpoint(AWSS3BUCKET *bucket, const char *host)
@@ -196,6 +245,39 @@ aws_s3_set_endpoint(AWSS3BUCKET *bucket, const char *host)
 	return 0;
 }
 
+const char *
+aws_s3_endpoint(AWSS3BUCKET *bucket)
+{
+	return bucket->endpoint;
+}
+
+/* Set the region to be used (e.g., eu-west-1) */
+int
+aws_s3_set_region(AWSS3BUCKET *bucket, const char *region)
+{
+	char *p;
+
+	p = strdup(region);
+	if(!p)
+	{
+		return -1;
+	}
+	if(!bucket->ver)
+	{
+		bucket->ver = 4;
+	}
+	free(bucket->region);
+	bucket->region = p;
+	return 0;
+}
+
+const char *
+aws_s3_region(AWSS3BUCKET *bucket)
+{
+	return bucket->region;
+}
+
+
 /* Set the base path to be used in future requests */
 int
 aws_s3_set_basepath(AWSS3BUCKET *bucket, const char *path)
@@ -210,6 +292,30 @@ aws_s3_set_basepath(AWSS3BUCKET *bucket, const char *path)
 	free(bucket->basepath);
 	bucket->basepath = p;
 	return 0;
+}
+
+const char *
+aws_s3_basepath(AWSS3BUCKET *bucket)
+{
+	return bucket->basepath;
+}
+
+/* Set the authentication version used in future requests */
+int
+aws_s3_set_version(AWSS3BUCKET *bucket, int ver)
+{
+	bucket->ver = ver;
+	return 0;
+}
+
+int
+aws_s3_version(AWSS3BUCKET *bucket)
+{
+	if(bucket->ver >= 4)
+	{
+		return 4;
+	}
+	return 2;
 }
 
 /* Set the logging function */
