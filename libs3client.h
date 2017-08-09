@@ -28,7 +28,7 @@ typedef struct aws_request_struct S3REQUEST;
 # define s3_create(bucket)             aws_s3_create(bucket)
 # define s3_destroy(bucket)            aws_s3_destroy(bucket)
 # define s3_set_logger(bucket, fn)     aws_s3_set_logger(bucket, fn)
-# define s3_set_bucket(bucket, name)   aws_s3_set_bucket(bucket, name)
+# define s3_set_bucket(bucket, name)   aws_s3_set_bucket_name(bucket, name)
 # define s3_set_access(bucket, key)    aws_s3_set_access(bucket, key)
 # define s3_set_secret(bucket, key)    aws_s3_set_secret(bucket, key)
 # define s3_set_endpoint(bucket, host) aws_s3_set_endpoint(bucket, host)

@@ -93,7 +93,7 @@ pos(char c)
 }
 
 int
-aws_base64_encode_(const void *data, int size, uint8_t* buffer)
+libaws_base64_encode_(const void *data, int size, uint8_t* buffer)
 {
 	uint8_t *p;
 	int i;
@@ -161,14 +161,14 @@ token_decode(uint8_t * token)
 
 
 uint8_t *
-aws_base64_decode_(uint8_t * str, void *data, int *datalen)
+libaws_base64_decode_(uint8_t * str, void *data, int *datalen)
 {
 	uint8_t *p, *q;
-	uint32_t marker = 0;
+	uint32_t marker = 0, val;
 
 	q = data;
 	for (p = str; *p; p += 4) {
-		uint32_t val = token_decode(p);
+		val = token_decode(p);
 		marker = (val >> 24) & 0xff;
 		if (val == DECODE_ERROR) {
 			return NULL;
