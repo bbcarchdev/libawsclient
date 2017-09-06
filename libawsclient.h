@@ -27,29 +27,6 @@ typedef struct uri_struct URI;
 
 typedef struct aws_s3_bucket_struct AWSS3BUCKET;
 typedef struct aws_request_struct AWSREQUEST;
-typedef struct aws_sign_v1_struct AWSSIGN;
-
-typedef enum
-{
-	AWS_ALG_DEFAULT = 0,
-	AWS_ALG_SHA1 = 2,
-	AWS_ALG_HMAC_SHA256 = 4
-} AWSALG;
-
-struct aws_sign_v1_struct
-{
-	AWSALG alg;
-	size_t size;
-	const char *method;
-	const char *resource;
-	const char *access_key;
-	const char *secret_key;
-	const char *token;
-	const char *region;
-	const char *service;
-	time_t timestamp;
-	const char *payloadhash;
-};
 
 /* Create an object representing an S3 bucket */
 AWSS3BUCKET *aws_s3_create(const char *bucket);
@@ -74,24 +51,11 @@ int aws_s3_set_access(AWSS3BUCKET *bucket, const char *key);
 /* Set the secret to be used in requests for this bucket */
 int aws_s3_set_secret(AWSS3BUCKET *bucket, const char *key);
 
-/* Set the session token to be used in requests for this bucket */
-int aws_s3_set_token(AWSS3BUCKET *bucket, const char *token);
-
 /* Set the endpoint to be used (in place of s3.amazonaws.com) */
 int aws_s3_set_endpoint(AWSS3BUCKET *bucket, const char *host);
-const char *aws_s3_endpoint(AWSS3BUCKET *bucket);
 
 /* Set the base path to be used for all requests to this bucket */
 int aws_s3_set_basepath(AWSS3BUCKET *bucket, const char *path);
-const char *aws_s3_basepath(AWSS3BUCKET *bucket);
-
-/* Set the region (e.g., eu-west-2) to be used for all requests to this bucket */
-int aws_s3_set_region(AWSS3BUCKET *bucket, const char *region);
-const char *aws_s3_region(AWSS3BUCKET *bucket);
-
-/* Set the authentication version */
-int aws_s3_set_version(AWSS3BUCKET *bucket, int version);
-int aws_s3_version(AWSS3BUCKET *bucket);
 
 /* Create a new request for a resource within a bucket */
 AWSREQUEST *aws_s3_request_create(AWSS3BUCKET *bucket, const char *resource, const char *method);
@@ -116,10 +80,7 @@ struct curl_slist *aws_request_headers(AWSREQUEST *request);
  */
 int aws_request_set_headers(AWSREQUEST *request, struct curl_slist *headers);
 
-/* Sign a set of request headers */
-struct curl_slist *aws_sign_headers(AWSSIGN *sign, struct curl_slist *headers);
-
-/* DEPRECATED Sign an AWS S3 request, appending a suitable 'Authorization: AWS ...' header
+/* Sign an AWS S3 request, appending a suitable 'Authorization: AWS ...' header
  * to the list provided.
  */
 struct curl_slist *aws_s3_sign(const char *method, const char *resource, const char *access_key, const char *secret, struct curl_slist *headers);

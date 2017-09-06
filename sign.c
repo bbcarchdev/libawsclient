@@ -1,6 +1,6 @@
 /* Author: Mo McRoberts <mo.mcroberts@bbc.co.uk>
  *
- * Copyright (c) 2014-2017 BBC
+ * Copyright (c) 2014-2015 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,80 +25,18 @@
 # define CC_SHA1_DIGEST_LENGTH         20
 #endif
 
-struct curl_slist *aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers);
-struct curl_slist *aws_sign_headers_hmac_sha256_(AWSSIGN *sign, struct curl_slist *headers);
 static int aws_header_sort_(const void *a, const void *b);
-static char *stradd_(char *dest, const char *src);
 
-struct curl_slist *
-aws_sign_headers(AWSSIGN *sign, struct curl_slist *headers)
+static char *
+stradd(char *dest, const char *src)
 {
-	AWSSIGN data;
-	
-	if((sign->size == 0) || (sign->size > sizeof(AWSSIGN)) || (!sign->service))
-	{
-		errno = EINVAL;
-		return NULL;
-	}
-	memset(&data, 0, sizeof(AWSSIGN));
-	memcpy(&data, sign, sign->size);
-	if(!data.method)
-	{
-		data.method = "GET";
-	}
-	if(!data.resource)
-	{
-		data.resource = "/";
-	}
-	if(!data.access_key)
-	{
-		data.access_key = "";
-	}
-	if(!data.secret_key)
-	{
-		data.secret_key = "";
-	}
-	if(!data.timestamp)
-	{
-		data.timestamp = time(NULL);
-	}
-	switch(data.alg)
-	{
-	case AWS_ALG_DEFAULT:
-		if(data.token || data.region || data.payloadhash)
-		{
-			return aws_sign_headers_hmac_sha256_(&data, headers);
-		}
-		return aws_sign_headers_sha1_(&data, headers);
-	case AWS_ALG_SHA1:
-		return aws_sign_headers_sha1_(&data, headers);
-	case AWS_ALG_HMAC_SHA256:
-		return aws_sign_headers_hmac_sha256_(&data, headers);
-	}
+	strcpy(dest, src);
+	return strchr(dest, 0);
 }
 
-/* Legacy method for compatibility - always signs an S3 request with AWSv2 */
+
 struct curl_slist *
 aws_s3_sign(const char *method, const char *resource, const char *access_key, const char *secret, struct curl_slist *headers)
-{
-	AWSSIGN sign;
-	
-	memset(&sign, 0, sizeof(AWSSIGN));
-	sign.alg = AWS_ALG_SHA1;
-	sign.size = sizeof(AWSSIGN);
-	sign.service = "s3";
-	sign.method = method;
-	sign.resource = resource;
-	sign.access_key = access_key;
-	sign.secret_key = secret;
-	return aws_sign_headers(&sign, headers);
-}
-
-/* Sign request headers using the legacy SHA1-based scheme
- * http://docs.aws.amazon.com/general/latest/gr/signature-version-2.html
- */
-struct curl_slist *
-aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 {
 	const char *type, *md5, *date, *adate, *hp;
 	size_t len, amzlen, amzcount, c, l;
@@ -113,7 +51,7 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 	char datebuf[64];
 
 	type = md5 = date = adate = NULL;
-	len = strlen(sign->method) + strlen(sign->resource) + 2;
+	len = strlen(method) + strlen(resource) + 2;
 	amzcount = 0;
 	amzlen = 0;
 	for(p = headers; p; p = p->next)
@@ -140,7 +78,7 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 			amzcount++;
 		}
 	}
-	else if(adate)
+	if(adate)
 	{
 		/* x-amz-date takes precedence over date */
 		date = adate;
@@ -155,9 +93,8 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 	}
 	if(!date)
 	{
-		/* If no date was specified, provide one */
-		
-		gmtime_r(&(sign->timestamp), &tm);
+		now = time(NULL);
+		gmtime_r(&now, &tm);
 		strcpy(datebuf, "Date: ");
 		strftime(&(datebuf[6]), 57, "%a, %d %b %Y %H:%M:%S GMT", &tm);		
 		headers = curl_slist_append(headers, datebuf);
@@ -169,16 +106,16 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 	{
 		return NULL;
 	}
-	t = stradd_(buf, sign->method);
+	t = stradd(buf, method);
 	*t = '\n';
 	t++;
-	t = stradd_(t, md5);
+	t = stradd(t, md5);
 	*t = '\n';
 	t++;
-	t = stradd_(t, type);
+	t = stradd(t, type);
 	*t = '\n';
 	t++;
-	t = stradd_(t, date);
+	t = stradd(t, date);
 	*t = '\n';
 	t++;
 	if(amzcount)
@@ -229,13 +166,13 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 				continue;
 			}
 			l = hp - amzhdr[c];
-			t = stradd_(t, amzhdr[c]);
+			t = stradd(t, amzhdr[c]);
 			while(c + 1 < amzcount && !strncmp(amzhdr[c + 1], amzhdr[c], l))
 			{
 				c++;
 				*t = ',';
 				t++;
-				t = stradd_(t, amzhdr[c] + l + 1);
+				t = stradd(t, amzhdr[c] + l + 1);
 			}
 			*t = '\n';
 			t++;
@@ -243,76 +180,23 @@ aws_sign_headers_sha1_(AWSSIGN *sign, struct curl_slist *headers)
 		free(amzbuf);
 		free(amzhdr);
 	}
-	t = stradd_(t, sign->resource);
+	t = stradd(t, resource);
 #ifdef WITH_COMMONCRYPTO
-	CCHmac(kCCHmacAlgSHA1, sign->secret_key, strlen(sign->secret_key), buf, strlen(buf), digest);
+	CCHmac(kCCHmacAlgSHA1, secret, strlen(secret), buf, strlen(buf), digest);
 	digestlen = CC_SHA1_DIGEST_LENGTH;
 #else
-	HMAC(EVP_sha1(), sign->secret_key, strlen(sign->secret_key), (unsigned char *) buf, strlen(buf), digest, &digestlen);
+	HMAC(EVP_sha1(), secret, strlen(secret), (unsigned char *) buf, strlen(buf), digest, &digestlen);
 #endif
 	free(buf);
 
-	sigbuf = (char *) calloc(1, strlen(sign->access_key) + (digestlen * 2) + 20 + 16);
-	t = stradd_(sigbuf, "Authorization: AWS ");
-	t = stradd_(t, sign->access_key);
+	sigbuf = (char *) calloc(1, strlen(access_key) + (digestlen * 2) + 20 + 16);
+	t = stradd(sigbuf, "Authorization: AWS ");
+	t = stradd(t, access_key);
 	*t = ':';
 	t++;
 	aws_base64_encode_(digest, digestlen, (uint8_t *) t);
 	headers = curl_slist_append(headers, sigbuf);
 	free(sigbuf);
-	return headers;
-}
-
-/* Sign request headers using the AWS4 HMAC-SHA256 scheme
- * http://docs.aws.amazon.com/general/latest/gr/signature-version-4.html
- */
-
-struct curl_slist *
-aws_s3_sign_headers_hmac_sha256_(AWSSIGN *sign, struct curl_slist *headers)
-{
-	const char *uri, *query, *headerstr;
-	char *creq;
-	size_t urilen, querylen, headerstrlen, creqlen;
-	
-	/* First, create a canonical request and determine the request date
-	 * CanonicalRequest =
-     *  HTTPRequestMethod + '\n' +
-     *  CanonicalURI + '\n' +
-     *  CanonicalQueryString + '\n' +
-     *  CanonicalHeaders + '\n' +
-     *  SignedHeaders + '\n' +
-     *  HexEncode(SHA256(RequestPayload))
-	 */
-	creq = NULL;
-	creqlen = 0;
-	uri = NULL;
-	urilen = 0;
-	
-	creqlen += strlen(sign->method) + 1;
-	
-	
-	query = NULL;
-	querylen = 0;
-	
-	headerstr = NULL;
-	headerstrlen = 0;
-	
-	/* Create a signing key:
-	 *
-	 * HMAC(HMAC(HMAC(HMAC("AWS4" + secret, "YYYYMMDD"), region), service),"aws4_request")
-	 */
-	
-	/* Create the string to sign:
-	 * StringToSign =
-	 *  Algorithm ("AWS4-HMAC-SHA256") + '\n' +
-	 *  RequestDatetime + '\n' +
-	 *  CredentialScope + '\n' +
-	 *  SHA256(CanonicalRequest)
-	 */
-	
-	/* Finally, generate the signature:
-	 * signature = HexEncode(HMAC(derived signing key, string to sign))
-	 */
 	return headers;
 }
 
@@ -325,11 +209,4 @@ aws_header_sort_(const void *a, const void *b)
 	strb = (const char **) b;
 
 	return strcmp(*stra, *strb);
-}
-
-static char *
-stradd_(char *dest, const char *src)
-{
-	strcpy(dest, src);
-	return strchr(dest, 0);
 }

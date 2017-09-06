@@ -76,7 +76,7 @@ aws_request_finalise(AWSREQUEST *req)
 	size_t l;
 	char *resource, *url, *p;
 	const char *t;
-	int r, ver;
+	int r;
 
 	if(req->finalised)
 	{
@@ -180,15 +180,7 @@ aws_request_finalise(AWSREQUEST *req)
 	strcpy(p, resource);
 	free(req->url);
 	req->url = url;
-	ver = aws_s3_version(req->bucket);
-	if(ver == 4)
-	{
-		headers = aws_s3_sign_v4_hmacsha256(req->method, resource, req->bucket->access, req->bucket->secret, req->bucket->token, req->bucket->region, "s3", aws_request_headers(req));	
-	}
-	else
-	{
-		headers = aws_s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, aws_request_headers(req));
-	}
+	headers = aws_s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, aws_request_headers(req));
 	if(!headers)
 	{
 		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");

@@ -9,10 +9,10 @@
 #include <curl/curl.h>
 #include "libawsclient.h"
 
-static const char *endpoint, *accesskey, *secretkey, *resource, *token, *region;
+static const char *endpoint, *accesskey, *secretkey, *resource;
 static char *bucketuri;
 static const char *short_progname = "s3cat";
-static int verbose, authversion;
+static int verbose;
 
 static int process_args(int argc, char **argv);
 static void usage(void);
@@ -53,18 +53,6 @@ main(int argc, char **argv)
 	if(endpoint)
 	{
 		aws_s3_set_endpoint(bucket, endpoint);
-	}
-	if(token)
-	{
-		aws_s3_set_token(bucket, token);
-	}
-	if(region)
-	{
-		aws_s3_set_region(bucket, region);
-	}
-	if(authversion)
-	{
-		aws_s3_set_version(bucket, authversion);
 	}
 	request = aws_s3_request_create(bucket, resource, "GET");
 	if(!request)
@@ -120,8 +108,7 @@ process_args(int argc, char **argv)
 {
 	char *t;
 	int c;
-	intmax_t n;
-	
+
 	t = strrchr(argv[0], '/');
 	if(t && t[1])
 	{
@@ -132,7 +119,7 @@ process_args(int argc, char **argv)
 	{
 		short_progname = argv[0];
 	}
-	while((c = getopt(argc, argv, "hda:s:e:r:v:t:")) != -1)
+	while((c = getopt(argc, argv, "hda:s:e:")) != -1)
 	{
 		switch(c)
 		{
@@ -150,32 +137,6 @@ process_args(int argc, char **argv)
 			break;
 		case 'e':
 			endpoint = optarg;
-			break;
-		case 'r':
-			resource = optarg;
-			break;
-		case 't':
-			token = optarg;
-			if(!authversion)
-			{
-				authversion = 4;
-			}
-			break;
-		case 'R':
-			region = optarg;
-			if(!authversion)
-			{
-				authversion = 4;
-			}
-			break;
-		case 'v':
-			n = strtoimax(optarg, NULL, 10);
-			if(n != 2 && n != 4)
-			{
-				fprintf(stderr, "%s: version must be '2' or '4'\n", short_progname);
-				return -1;
-			}
-			authversion = n;
 			break;
 		default:
 			usage();
@@ -204,15 +165,7 @@ process_args(int argc, char **argv)
 		return -1;
 	}
 	*t = 0;
-	if(!resource)
-	{
-		resource = t + 1;
-		t = strchr(resource, '?');
-		if(t)
-		{
-			*t = 0;
-		}
-	}
+	resource = t + 1;
 	return 0;
 }
 
@@ -220,18 +173,14 @@ static void
 usage(void)
 {
 	printf("Usage: %s OPTIONS s3://BUCKET/RESOURCE[?params]"
-		"\n"
-		"OPTIONS is one or more of:\n"
-		"  -h                  Print this message and exit\n"
-		"  -d                  Enable debugging output\n"
-		"  -a KEY              Specify access key\n"
-		"  -s KEY              Specify secret key\n"
-		"  -t TOKEN            Specify the session token (implies -v4)\n"
-		"  -e HOSTNAME         Specify alternative S3 endpoint\n"
-		"  -v VER              Specify the signature version (2 or 4)\n"
-		"  -R REGION           Specify the AWS region (implies -v4)\n"
-		"  -r PATH             Specify a resource path (ignores any path in the URI)\n",
-		short_progname);
+		   "\n"
+		   "OPTIONS is one or more of:\n"
+		   "  -h                  Print this message and exit\n"
+		   "  -d                  Enable debugging output\n"
+		   "  -a KEY              Specify access key\n"
+		   "  -s KEY              Specify secret key\n"
+		   "  -e HOSTNAME         Specify alternative S3 endpoint\n",
+		   short_progname);
 }
 
 static void
