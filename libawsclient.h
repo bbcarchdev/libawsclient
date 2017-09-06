@@ -21,7 +21,8 @@
 # include <stdarg.h>
 # include <curl/curl.h>
 
-# ifndef LIBURI_H_
+# ifndef URI_TYPE_DEFINED
+#  define URI_TYPE_DEFINED
 typedef struct uri_struct URI;
 # endif
 
