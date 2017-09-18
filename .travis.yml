@@ -5,14 +5,21 @@ compiler: clang
 before_install:
 - curl https://letsencrypt.org/certs/isrgrootx1.pem.txt | sudo tee /usr/share/ca-certificates/isrgrootx1.crt
 - echo "isrgrootx1.crt" | sudo tee -a /etc/ca-certificates.conf
-- curl https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt | sudo tee /usr/share/ca-certificates/lets-encrypt-x3-cross-signed.crt
+- curl https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt | sudo tee
+  /usr/share/ca-certificates/lets-encrypt-x3-cross-signed.crt
 - echo "lets-encrypt-x3-cross-signed.crt" | sudo tee -a /etc/ca-certificates.conf
 - sudo update-ca-certificates
-- curl https://raw.githubusercontent.com/bbcarchdev/bbcarchdev-keys/main/bbcarchdev-apt.asc | sudo apt-key add -
-- echo "deb [arch=amd64] https://apt.bbcarchdev.net/debian wheezy main ports dev stage live" | sudo tee -a /etc/apt/sources.list
+- curl https://raw.githubusercontent.com/bbcarchdev/bbcarchdev-keys/main/bbcarchdev-apt.asc
+  | sudo apt-key add -
+- echo "deb [arch=amd64] https://apt.bbcarchdev.net/debian wheezy main ports dev stage
+  live" | sudo tee -a /etc/apt/sources.list
 - sudo apt-get update -qq
-- sudo apt-get install -qq libcurl4-gnutls-dev liburi-dev libssl-dev automake autoconf libtool pkg-config
+- sudo apt-get install -qq libcurl4-gnutls-dev liburi-dev libssl-dev automake autoconf
+  libtool pkg-config
 before_script:
 - autoreconf -f -i
 script:
 - ./configure && make && make check
+notifications:
+  slack:
+    secure: QOIz7t1TUA4zKgpWAUxIfwllrfI/53RFdC2zc9qyq8K3mfaVZz1zyJm60c8tpnIlb1tPYSVuoyFQUWozM39OUtuMyN5MvsxlUZrNSwHTzrscplyNqnbw2EaMHG5PIbWD9WWsNgD1Zlsoa6oHUMTSXGSz+Tv9szFHr+eCwbWYTfaUlEhYrDy+wp1v2g4fZGFv9JgZjx2GYagoOE9smRdgKL7fxxnqRm5DLEs/LP4ufMdYP8Q01UEEwfEQYBrHHKL0Wy62xerK4rq1zPGa+LJz4sC+euC8DPbB2X0TFAYFRinP/icFnWdMKAaSYV6qNrSzS00stq5TbmkynJPLyURp5n3oQl0XP9y9/XRp8w2OZWCBSUJTL3+3EsC2js3lHBDp/3mA4MvW0qJutBKxsOfn38IxPjv3vFMpq/lk195AE9BTZXLIAEC2jIX380MT+APNhAlcQ+cCJAdNvOXDQa6CRQZ2DgxULVG7IGw7hSbTGaTLr/y+Pwvl+NiMm+wOlfCuhZZhZYxs15irxxXyoTNMHl24BFkvOgt4EuDJsE3SKNhZpSteepNp7E9GRs3/gaW3Xmcz4Rc9RnzKqFy3ERqyRZEu4ePmw6owxy7Jh1JZMTdR5Ek9Wr8g/vRPgIdGIdkxzoya+BF5vg2bTWI+jVBgCVw8cnFk8WIY4z83v69zQk8=
