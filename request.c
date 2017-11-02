@@ -20,118 +20,239 @@
 #endif
 
 #include "p_libawsclient.h"
+#include "aws_string.h"
+#include "curl_slist.h"
+
+static int aws_s3_request_sign_and_update_curl_(AWSREQUEST * restrict request, char * restrict resource);
+static int aws_s3_request_sign_(AWSREQUEST * restrict request, char * restrict resource);
+static char *aws_s3_build_request_url_(AWSREQUEST *request);
+static char *aws_host_from_endpoint_(const char *endpoint) MALLOC;
 
 /* Create a new request for a resource within a bucket */
 AWSREQUEST *
-aws_s3_request_create(AWSS3BUCKET *bucket, const char *resource, const char *method)
-{
-	AWSREQUEST *p;
-
-	p = (AWSREQUEST *) calloc(1, sizeof(AWSREQUEST));
-	if(!p)
+aws_s3_request_create(
+	AWSS3BUCKET * const s3,
+	const char * const resource,
+	const char * const method
+) {
+	AWSREQUEST *request;
+	if(!s3)
 	{
-		return NULL;
+		fprintf(stderr, PACKAGE "::%s: S3 service struct must not be null\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
 	}
-	p->bucket = bucket;
-	p->resource = strdup(resource);
-	p->method = strdup(method);
-	if(!p->resource || !p->method)
+	if(!resource)
 	{
-		aws_request_destroy(p);
-		return NULL;
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: resource must not be null\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
 	}
-	return p;
+	if(!method)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: method must not be null\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
+	}
+	request = calloc(1, sizeof(AWSREQUEST));
+	if(!request)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to allocate memory for request\n", __FUNCTION__);
+		return errno = ENOMEM, NULL;
+	}
+	request->bucket = s3;
+	request->resource = strdup(resource);
+	request->method = strdup(method);
+	if(!request->resource || !request->method)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to duplicate either resource or method strings\n", __FUNCTION__);
+		aws_request_destroy(request);
+		return errno = ENOMEM, NULL;
+	}
+	return request;
 }
 
 /* Destroy a request */
 int
-aws_request_destroy(AWSREQUEST *req)
+aws_request_destroy(AWSREQUEST * const request)
 {
-	if(!req)
+	if(!request)
 	{
-		errno = EINVAL;
-		return -1;
+		return errno = EINVAL, -1;
 	}
-	free(req->resource);
-	free(req->method);
-	free(req->url);
-	if(req->ch)
+	free(request->resource);
+	free(request->method);
+	free(request->url);
+	if(request->ch)
 	{
-		curl_easy_cleanup(req->ch);
+		curl_easy_cleanup(request->ch);
 	}
-	if(req->headers)
-	{
-		curl_slist_free_all(req->headers);
-	}
-	free(req);
+	aws_curl_slist_free(&request->headers);
+	free(request);
 	return 0;
 }
 
-/* Finalise (sign) a request */
+/**
+ * Finalise (sign) a request
+ * ONLY SUPPORTS S3 at the moment
+ * Creates an actual HTTP URL from the AWS parameters, and signs the request
+ */
 int
-aws_request_finalise(AWSREQUEST *req)
+aws_request_finalise(AWSREQUEST * const request)
 {
-	CURL *ch;
-	struct curl_slist *headers;
-	size_t l;
-	char *resource, *url, *p;
-	const char *t;
-	int r;
-
-	if(req->finalised)
+	char *resource;
+	if(!request)
+	{
+		return errno = EINVAL, -1;
+	}
+	if(request->finalised)
 	{
 		return 0;
 	}
-	r = 0;  
-	if(!req->bucket->bucket)
+	if(!request->bucket)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket name is missing from request\n");
-		r = -1;
+		return errno = EINVAL, -1;
 	}
-	if(!req->bucket->access)
+	resource = aws_s3_build_request_url_(request);
+	if(aws_s3_request_sign_and_update_curl_(request, resource) != 0)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket access key is missing from request\n");
-		r = -1;
-	}
-	if(!req->bucket->secret)
-	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: bucket secret key is missing from request\n");
-		r = -1;
-	}
-	if(r)
-	{
-		errno = EINVAL;
+		free(resource);
 		return -1;
 	}
-	ch = aws_request_curl(req);
+	request->finalised = 1;
+	free(resource);
+	return 0;
+}
+
+
+static int
+aws_s3_request_sign_and_update_curl_(
+	AWSREQUEST * const restrict request,
+	char * const restrict resource
+) {
+	AWSS3BUCKET * const s3 = request->bucket;
+	CURL *ch = aws_request_curl(request);
 	if(!ch)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to create cURL handle\n");
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to create cURL handle\n", __FUNCTION__);
 		return -1;
 	}
+	if(aws_s3_request_sign_(request, resource) != 0)
+	{
+		return -1;
+	}
+	curl_easy_setopt(ch, CURLOPT_HTTPHEADER, aws_request_headers(request));
+	curl_easy_setopt(ch, CURLOPT_URL, request->url);
+	curl_easy_setopt(ch, CURLOPT_CUSTOMREQUEST, request->method);
+	return 0;
+}
+
+static int
+aws_s3_request_sign_(
+	AWSREQUEST * const restrict request,
+	char * const restrict resource
+) {
+	AWSSIGN sign = {};
+	AWSS3BUCKET * const s3 = request->bucket;
+	struct curl_slist *headers;
+
+	sign.version = s3->version;
+	sign.size = sizeof(AWSSIGN);
+	sign.service = "s3";
+	sign.method = request->method;
+	sign.region = s3->region;
+	sign.host = aws_host_from_endpoint_(s3->endpoint);
+	sign.resource = resource;
+	sign.access_key = s3->access;
+	sign.secret_key = s3->secret;
+	sign.token = s3->token;
+	headers = aws_sign(&sign, aws_request_headers(request));
+	free(sign.host);
+	if(!headers)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to sign request\n", __FUNCTION__);
+		return -1;
+	}
+	(void) aws_request_set_headers(request, headers);
+	return 0;
+}
+
+static char *
+aws_host_from_endpoint_(const char * const endpoint)
+{
+	/* input endpoint == [user [":" pass] "@"] host [":" port]
+	   output host == "domain.name" or "dot.ted.qu.ad" or "[v6::addr]" */
+	size_t length;
+	char *start, *end, *host;
+	start = strchr(endpoint, '@');
+	start = start ? start : (char *) endpoint;
+	if(start[0] == '[')
+	{
+		/* IPv6 */
+		end = strchr(start, ']');
+		if(!end)
+		{
+			/* host addr malformed */
+			return errno = EINVAL, NULL;
+		}
+		end++;
+	}
+	else
+	{
+		/* IPv4 or DNS */
+		end = strchr(start, ':');
+		if(!end)
+		{
+			return strdup(start);
+		}
+	}
+	length = (size_t) (end - start);
+	host = malloc(length + 1);
+	memcpy(host, start, length);
+	host[length] = '\0';
+	return host;
+}
+
+/**
+ * builds the HTTP-scheme request URL, assigns it to request->url, and returns the path part
+ */
+static char *
+aws_s3_build_request_url_(AWSREQUEST * const request)
+{
+	size_t l;
+	char *resource, *url, *p, *t, *tmp;
+	AWSS3BUCKET *s3 = request->bucket;
+	if(!s3->bucket)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: bucket name is missing from request\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
+	}
+	if(!s3->access)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: bucket access key is missing from request\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
+	}
+	if(!s3->secret)
+	{
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: bucket secret key is missing from request\n", __FUNCTION__);
+		return errno = EINVAL, NULL;
+	}
 	/* The resource path is signed in the request, and takes the form:
-	 * /{bucket}/[{basepath}]/{resource}
+	 * /{bucket}/[{basepath}/]{resource}
 	 */
-	l = 1 + strlen(req->bucket->bucket) + 1 + (req->bucket->basepath ? strlen(req->bucket->basepath) : 0) + 1 + strlen(req->resource) + 1;
+	l = 1 + strlen(s3->bucket) + 1 + (s3->basepath ? strlen(s3->basepath) : 0) + 1 + strlen(request->resource) + 1;
 	resource = (char *) calloc(1, l + 16);
 	if(!resource)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for request-uri\n");
-		return -1;
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to allocate memory for request-uri\n", __FUNCTION__);
+		return NULL;
 	}
 	p = resource;
-	*p = '/';
-	p++;
-	strcpy(p, req->bucket->bucket);
-	p += strlen(req->bucket->bucket);
-	*p = '/';
-	p++;
-	t = NULL;
-	if(req->bucket->basepath)
+	*p++ = '/';
+	p = aws_stradd(p, s3->bucket);
+	*p++ = '/';
+	t = (char *) s3->basepath;
+	if(t)
 	{
-		/* Skip leading slashes, as there's already a trailing slash */
-		t = req->bucket->basepath;
-		while(*t == '/')
+		/* Skip one leading slash from basepath, as it has already been added */
+		if(*t == '/')
 		{
 			t++;
 		}
@@ -143,107 +264,85 @@ aws_request_finalise(AWSREQUEST *req)
 	if(t)
 	{
 		/* There's a non-empty base path */
-		strcpy(p, t);
-		p += strlen(t) - 1;
-		/* If there isn't a trailing slash, add one */
-		if(*p != '/')
-		{
-			p++;
-			*p = '/';
-		}
-		p++;
+		p = aws_stradd(p, t);
+		/* always add a slash between the basepath and the resource */
+		*p++ = '/';
 	}
-	t = req->resource;
-	/* Skip leading slashes in the resource path */
-	while(*t == '/')
-	{
-		t++;
-	}
-	strcpy(p, t);
+	strcpy(p, request->resource);
 	/* The URL is http://{endpoint}{resource}
-	 * endpoint is just a hostname (or conceivably, hostname:port)
-	 * resource, created above, always has a leading slash
+	 * endpoint is just a hostname (or conceivably, hostname:port); and
+	 * resource, created above, already has a leading slash
 	 */
-	l += 7 + strlen(req->bucket->endpoint) + 1;
+	if(aws_s3_ensure_endpoint_is_specified_(request->bucket) != 0)
+	{
+		free(resource);
+		return NULL;
+	}
+	l += 7 + strlen(s3->endpoint) + 1; /* 7 == strlen("http://") */
 	url = (char *) calloc(1, l + 16);
 	if(!url)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to allocate memory for S3 URL\n");
+		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to allocate memory for S3 URL\n", __FUNCTION__);
 		free(resource);
-		return -1;
+		return errno = ENOMEM, NULL;
 	}
-	p = url;
-	strcpy(p, "http://");
-	p += 7;
-	strcpy(p, req->bucket->endpoint);
-	p += strlen(req->bucket->endpoint);
-	strcpy(p, resource);
-	free(req->url);
-	req->url = url;
-	headers = aws_s3_sign(req->method, resource, req->bucket->access, req->bucket->secret, aws_request_headers(req));
-	if(!headers)
+	p = aws_stradd(url, "http://");
+	p = aws_stradd(p, s3->endpoint);
+	(void) strcpy(p, resource);
+	tmp = (char *) request->url;
+	request->url = url;
+	if(tmp)
 	{
-		aws_s3_logf_(req->bucket, LOG_ERR, "S3: failed to sign request headers\n");
-		free(resource);
-		return -1;
+		aws_s3_logf_(s3, LOG_WARNING, PACKAGE "::%s: request URL already exists, should be empty - attempting to free().\n", __FUNCTION__);
+		free(tmp);
 	}
-	req->finalised = 1;
-	req->headers = headers;
-	curl_easy_setopt(ch, CURLOPT_HTTPHEADER, req->headers);
-	curl_easy_setopt(ch, CURLOPT_URL, req->url);
-	curl_easy_setopt(ch, CURLOPT_CUSTOMREQUEST, req->method);
-	free(resource);
-	return 0;
+	return resource;
 }
 
 /* Perform a request, finalising if needed */
 int
-aws_request_perform(AWSREQUEST *req)
+aws_request_perform(AWSREQUEST * const request)
 {
-	int e;
-
-	if(!req->finalised)
+	if(!request->finalised && aws_request_finalise(request))
 	{
-		if(aws_request_finalise(req))
-		{
-			return CURLE_FAILED_INIT;
-		}
+		return CURLE_FAILED_INIT;
 	}
-	if((e = curl_easy_perform(req->ch)) != CURLE_OK)
-	{
-		return e;
-	}
-	return CURLE_OK;
+	return curl_easy_perform(request->ch);
 }
 
 /* Obtain (creating if needed) the cURL handle for this request */
 CURL *
-aws_request_curl(AWSREQUEST *request)
+aws_request_curl(AWSREQUEST * const request)
 {
 	if(!request->ch)
 	{
 		request->ch = curl_easy_init();
-		if(!request->ch)
-		{
-			return NULL;
-		}
 	}
 	return request->ch;
 }
 
 /* Obtain the headers list for this request */
 struct curl_slist *
-aws_request_headers(AWSREQUEST *request)
+aws_request_headers(AWSREQUEST * const request)
 {
 	return request->headers;
 }
 
-/* Set the headers list for this request (the list will be freed upon
- * request destruction).
+/* Set the headers list for this request (freeing any previous list; the new
+ * list will be freed upon request destruction). Call this before finalising
+ * the request.
  */
 int
-aws_request_set_headers(AWSREQUEST *request, struct curl_slist *headers)
+aws_request_set_headers(AWSREQUEST * const request, struct curl_slist * const headers)
 {
+	struct curl_slist *old;
+	if(request->finalised)
+	{
+		aws_s3_logf_(request->bucket, LOG_ERR, PACKAGE "::%s: attempted to change headers after finalising request.\n", __FUNCTION__);
+		return errno = EINVAL, -1;
+	}
+	old = request->headers;
 	request->headers = headers;
+	curl_slist_free_all(old);
 	return 0;
 }

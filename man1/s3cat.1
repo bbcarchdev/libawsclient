@@ -1,0 +1,91 @@
+.\"-
+.\" Copyright (c) 2017 BBC
+.\"
+.\"  Licensed under the Apache License, Version 2.0 (the "License");
+.\"  you may not use this file except in compliance with the License.
+.\"  You may obtain a copy of the License at
+.\"
+.\"      http://www.apache.org/licenses/LICENSE-2.0
+.\"
+.\"  Unless required by applicable law or agreed to in writing, software
+.\"  distributed under the License is distributed on an "AS IS" BASIS,
+.\"  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+.\"  See the License for the specific language governing permissions and
+.\"  limitations under the License.
+.\"
+.TH S3CAT 1
+.SH NAME
+s3cat \-\- print contents of a single Amazon S3 object
+.SH SYNOPSIS
+.B s3cat
+[\fB\-adekhrstv\fR]
+.I s3uri
+.SH DESCRIPTION
+.B s3cat
+print to the standard output the contents of an object specified by the bucket and key in an S3 URI.
+.SH ARGUMENTS
+.TP
+.BR s3uri
+A URI of the form \fBs3://\fR[\fIACCESS-KEY\fB:\fISECRET-KEY\fB@\fR]\fIBUCKET\fB/\fIOBJECT-KEY\fR[\fB?\fIPARAMS\fR] where
+.BR BUCKET
+is an S3 bucket identifier,
+.BR OBJECT-KEY
+is the key identifying an S3 object that exists within that bucket, and
+.BR PARAMS
+is an ampersand-delimited list of \fIkey\fB=\fIvalue\fR pairs.
+URIs with ampersands in them will need to be double-quoted in the shell.
+Allowed query parameters, which can be provided in any order and whose values are described in the OPTIONS section, are:
+.IP ""
+.BI endpoint= HOSTNAME
+.IP ""
+.BI region= REGION
+.IP ""
+.BI token= TOKEN
+.IP ""
+.BI ver= AUTHVER
+.SH OPTIONS
+Option flags can be provided in any order.
+If an option is provided more than once, the final one wins.
+.TP
+.BR \-h
+Print usage information to stdout, then exit.
+.TP
+.BR \-d
+Log debug information to stderr.
+.TP
+.BR \-a " " \fIACCESS-KEY\fR
+Specify an AWS access key, a 20-character string beginning with AKIA.
+.TP
+.BR \-s " " \fISECRET-KEY\fR
+Specify an AWS secret key, a 40-character base-64-encoded string.
+.TP
+.BR \-r " " \fIREGION\fR
+Specify an AWS region identifier, such as \fBeu-west-1\fR.
+This option implies \fB-v4\fR and \fB-e s3-\fIREGION\fB.amazonaws.com\fR.
+.TP
+.BR \-k " " \fIOBJECT-KEY\fR
+Override the object key in the \fIs3uri\fR argument.
+Note that object keys do not begin with a slash (/).
+.TP
+.BR \-e " " \fIHOSTNAME\fR
+Override the default S3 endpoint.
+If no \fB-e\fR or \fB-r\fR option is given, the endpoint s3.amazonaws.com is used.
+.TP
+.BR \-t " " \fITOKEN\fR
+Specify the session token (implies \fB-v4\fR).
+.TP
+.BR \-v " " \fIAUTHVER\fR
+Specify the AWS authentication version (\fB2\fR or \fB4\fR).
+By default, version 2 will be used unless a \fIREGION\fR or \fITOKEN\fR are given.
+.SH EXAMPLES
+.TP
+.B "s3cat -a AKIATHISISMYKEY -s ""53kr17/k3y6035h3R3"" -r eu-west-1 s3://my-bucket/path/to/file.txt"
+Print to the standard output the contents of the object identified by the key "path/to/file.txt" in the bucket "my-bucket" which resides in the eu-west-1 region, as authorized by the provided access key and secret key. As a region has been specified, this will use v4 authentication (HMAC-SHA256) and the s3-eu-west-1.amazonaws.com endpoint.
+.TP
+.B "s3cat s3://AKIATHISISMYKEY:53kr17%2Fk3y6035h3R3@my-bucket/path/to/file.txt?region=eu-west-1"
+An alternative way to perform the same request.
+.SH SEE ALSO
+.TP
+Amazon AWS CLI documentation for the S3 service: <http://docs.aws.amazon.com/cli/latest/reference/s3/>
+.SH BUGS
+Send any bug reports to <mailto:resbbc@bbc.co.uk> or raise a ticket at <https://github.com/bbcarchdev/libawsclient>.

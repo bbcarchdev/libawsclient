@@ -47,6 +47,8 @@ BT_REQUIRE_LIBURI
 
 BT_DEFINE_PREFIX
 
+AC_CHECK_FUNCS_ONCE([stpcpy vasprintf vsnprintf vsyslog])
+
 AC_CONFIG_FILES([Makefile
 m4/Makefile
 libawsclient.pc
