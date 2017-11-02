@@ -22,7 +22,7 @@
 
 # include <libawsclient.h>
 
-typedef struct aws_s3_bucket_struct S3BUCKET;
+typedef struct aws_s3_descriptor_struct S3BUCKET;
 typedef struct aws_request_struct S3REQUEST;
 
 # define s3_create(bucket)             aws_s3_create(bucket)
