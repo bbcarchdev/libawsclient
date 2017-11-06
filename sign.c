@@ -98,7 +98,6 @@ static uint8_t *aws_hmac_sha256_(size_t secret_key_length, const uint8_t * restr
 static char *aws_create_host_header_(const char *host) MALLOC;
 static int aws_header_sort_(const void *a, const void *b) PURE;
 
-static int aws_credentials_are_anonymous_(const AWSSIGN * const sign);
 static int aws_signing_params_are_bad_(const AWSSIGN * const sign);
 static int aws_should_use_v2_sig_(const AWSSIGN * const sign);
 
@@ -186,7 +185,7 @@ aws_sign_headers_(
 	const AWSSIGN * const restrict sign,
 	struct curl_slist * const restrict headers
 ) {
-	if(aws_credentials_are_anonymous_(sign))
+	if(aws_sign_credentials_are_anonymous(sign))
 	{
 		/* anonymous requests cannot be signed, but not an error */
 		return headers;
@@ -206,8 +205,8 @@ aws_sign_headers_(
 	}
 }
 
-static int
-aws_credentials_are_anonymous_(const AWSSIGN * const sign)
+int
+aws_sign_credentials_are_anonymous(const AWSSIGN * const sign)
 {
 	return aws_strempty(sign->access_key)
 		|| aws_strempty(sign->secret_key);
@@ -735,7 +734,7 @@ aws_derived_signing_key_(const AWSSIGN * const sign)
 	{
 		return NULL;
 	}
-	key2 = aws_hmac_sha256_(SHA256_DIGEST_LENGTH, key1, sign->region);
+	key2 = aws_hmac_sha256_(SHA256_DIGEST_LENGTH, key1, sign->region ? sign->region : AWS_DEFAULT_REGION);
 	(void) free(key1);
 	if(!key2)
 	{

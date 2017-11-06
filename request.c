@@ -158,19 +158,22 @@ aws_s3_request_sign_(
 	sign.service = "s3";
 	sign.method = request->method;
 	sign.region = s3->region;
-	sign.host = aws_host_from_endpoint_(s3->endpoint);
 	sign.resource = resource;
 	sign.access_key = s3->access;
 	sign.secret_key = s3->secret;
 	sign.token = s3->token;
-	headers = aws_sign(&sign, aws_request_headers(request));
-	free(sign.host);
-	if(!headers)
+	if(!aws_sign_credentials_are_anonymous(&sign))
 	{
-		aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to sign request\n", __FUNCTION__);
-		return -1;
+		sign.host = aws_host_from_endpoint_(s3->endpoint);
+		headers = aws_sign(&sign, aws_request_headers(request));
+		free(sign.host);
+		if(!headers)
+		{
+			aws_s3_logf_(s3, LOG_ERR, PACKAGE "::%s: failed to sign request\n", __FUNCTION__);
+			return -1;
+		}
+		(void) aws_request_set_headers(request, headers);
 	}
-	(void) aws_request_set_headers(request, headers);
 	return 0;
 }
 
@@ -181,6 +184,10 @@ aws_host_from_endpoint_(const char * const endpoint)
 	   output host == "domain.name" or "dot.ted.qu.ad" or "[v6::addr]" */
 	size_t length;
 	char *start, *end, *host;
+	if(!endpoint)
+	{
+		return NULL;
+	}
 	start = strchr(endpoint, '@');
 	start = start ? start : (char *) endpoint;
 	if(start[0] == '[')
