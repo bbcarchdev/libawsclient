@@ -414,6 +414,7 @@ aws_s3_create_endpoint_(const AWSS3BUCKET * const s3)
 {
 	if(aws_s3_has_valid_nondefault_region_(s3))
 	{
+		/* if region == default, this format is not valid */
 		return aws_strf(S3_REGIONAL_ENDPOINT_FORMAT, s3->region);
 	}
 	return strdup(S3_DEFAULT_ENDPOINT);

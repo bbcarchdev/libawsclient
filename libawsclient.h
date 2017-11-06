@@ -81,8 +81,8 @@ int aws_s3_set_secret(AWSS3BUCKET *s3, const char *key);
 /* Set the session token to be used in requests to this service */
 int aws_s3_set_token(AWSS3BUCKET *s3, const char *token);
 
-/* Set the endpoint to be used (in place of s3.amazonaws.com) */
-int aws_s3_set_endpoint(AWSS3BUCKET *s3, const char *host);
+/* Set the endpoint to be used (in place of s3.amazonaws.com:80) */
+int aws_s3_set_endpoint(AWSS3BUCKET *s3, const char *endpoint);
 char *aws_s3_endpoint(AWSS3BUCKET *s3);
 
 /* Set the base path to be used for all requests to this service */

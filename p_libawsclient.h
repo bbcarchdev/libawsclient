@@ -65,6 +65,8 @@ struct aws_request_struct
 int aws_s3_ensure_endpoint_is_specified_(AWSS3BUCKET * const s3);
 void aws_s3_logf_(AWSS3BUCKET *s3, int prio, const char *format, ...);
 
+int aws_sign_credentials_are_anonymous(const AWSSIGN * const sign);
+
 int aws_base64_encode_(const void *data, int size, uint8_t *buffer);
 uint8_t *aws_base64_decode_(uint8_t *str, void *data, int *datalen);
 
