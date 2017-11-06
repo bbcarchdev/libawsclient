@@ -1,4 +1,5 @@
-/* Copyright (c) 2017 BBC
+/**
+ * Copyright (c) 2017 BBC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +23,6 @@
 #define METHOD "GET"
 #define RESOURCE "README.md"
 #define REGION "eu-west-1"
-#define ACCESS_KEY "AKIAIOSFODNN7EXAMPLE"
-#define SECRET_KEY "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 #define AUTH_HEADER_NAME "Authorization"
 #define V4_HASH_HEADER_NAME "X-Amz-Content-SHA256"
 #define V2_AUTH_HEADER_PREFIX AUTH_HEADER_NAME ": AWS "
@@ -33,6 +32,16 @@
 #define KNOWN_PAYLOAD_LENGTH (7)
 #define KNOWN_PAYLOAD_HASH "239f59ed55e737c77147cf55ad0c1b030b6d7ee748a7426952f9b852d5a935e5"
 #define KNOWN_PAYLOAD_HASH_LENGTH (64)
+
+/* example values taken from AWS documentation */
+#define ACCESS_KEY "AKIAIOSFODNN7EXAMPLE"
+#define SECRET_KEY "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+#define SESSION_TOKEN "\
+AQoDYXdzEPT//////////wEXAMPLEtc764bNrC9SAPBSM22wDOk4x4HIZ8j4FZTwdQW\
+LWsKWHGBuFqwAeMicRXmxfpSPfIeoIYRqTflfKD8YUuwthAx7mSEI/qkPpKPi/kMcGd\
+QrmGdeehM4IC1NtBmUpp2wUE8phUZampKsburEDy0KPkyQDYwT7WZ0wq5VSXDvp75YU\
+9HFvlRd8Tx6q6fE8YQcHNVXAkiY9q6d+xo0rKwT38xVqr7ZD0u0iPPkUL64lIZbqBAz\
++scqKmlzm8FDrypNC9Yjc8fPOLn9FX9KSYvKTr4rvx3iSIlTJabIQwj2ICCR/oLxBA=="
 
 static int contains_header_name(const char * const name, struct curl_slist * const headers) {
 	struct curl_slist *h = headers;
@@ -47,8 +56,6 @@ static int contains_header_prefix(const char * const prefix, struct curl_slist *
 		h = h->next;
 	return (h != NULL);
 }
-
-/* Depends on bucket_spec and request_spec passing */
 
 spec("sign") {
 	it("should compute a payload hash correctly") {
@@ -73,32 +80,54 @@ spec("sign") {
 	}
 
 	context("new api") {
+		static struct curl_slist *hs;
 		static AWSSIGN sign = {};
 
 		before_each() {
+			hs = curl_slist_append(NULL, CUSTOM_HEADER);
 			sign.version = AWS_SIGN_VERSION_DEFAULT;
 			sign.size = sizeof sign;
+			sign.service = "s3";
 			sign.timestamp = time(NULL);
 			sign.method = METHOD;
 			sign.resource = RESOURCE;
 			sign.access_key = ACCESS_KEY;
 			sign.secret_key = SECRET_KEY;
 			sign.token = NULL;
-			sign.region = REGION;
-			sign.service = "s3"; /* used to build the v4 signature string */
+			sign.region = NULL;
 			sign.payloadhash = NULL;
 		}
 
-		it("should choose v4 when signing with the default signature version") {
-			struct curl_slist *hs = curl_slist_append(NULL, CUSTOM_HEADER);
+		after_each() {
+			curl_slist_free_all(hs);
+		}
+
+		it("should choose v2 by default when signing with minimal fields") {
 			hs = aws_sign(&sign, hs);
 			check(hs != NULL);
+			check(contains_header_prefix(V2_AUTH_HEADER_PREFIX, hs));
+		}
+
+		it("should choose v4 by default when signing with a region") {
+			sign.region = REGION;
+			hs = aws_sign(&sign, hs);
+			check(hs != NULL);
+			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
 			check(contains_header_prefix(V4_AUTH_HEADER_PREFIX, hs));
 		}
 
-		it("should return a v2 auth header when asked to sign with v2") {
+		it("should choose v4 by default when signing with a session token") {
+			sign.token = SESSION_TOKEN;
+			hs = aws_sign(&sign, hs);
+			check(hs != NULL);
+			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
+			check(contains_header_prefix(V4_AUTH_HEADER_PREFIX, hs));
+		}
+
+		it("should return a v2 auth header when asked to sign with v2, even in the presence of v4 fields") {
 			sign.version = AWS_SIGN_VERSION_2;
-			struct curl_slist *hs = curl_slist_append(NULL, CUSTOM_HEADER);
+			sign.region = REGION;
+			sign.token = SESSION_TOKEN;
 			hs = aws_sign(&sign, hs);
 			check(hs != NULL);
 			check(contains_header_prefix(V2_AUTH_HEADER_PREFIX, hs));
@@ -106,7 +135,6 @@ spec("sign") {
 
 		it("should return the v4 auth headers when asked to sign with v4") {
 			sign.version = AWS_SIGN_VERSION_4;
-			struct curl_slist *hs = curl_slist_append(NULL, CUSTOM_HEADER);
 			hs = aws_sign(&sign, hs);
 			check(hs != NULL);
 			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
@@ -116,7 +144,6 @@ spec("sign") {
 		it("should return the v4 auth headers when signing with v4 and a given payload hash") {
 			sign.version = AWS_SIGN_VERSION_4;
 			sign.payloadhash = KNOWN_PAYLOAD_HASH;
-			struct curl_slist *hs = curl_slist_append(NULL, CUSTOM_HEADER);
 			hs = aws_sign(&sign, hs);
 			check(hs != NULL);
 			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
