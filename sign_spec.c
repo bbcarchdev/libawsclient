@@ -124,6 +124,14 @@ spec("sign") {
 			check(contains_header_prefix(V4_AUTH_HEADER_PREFIX, hs));
 		}
 
+		it("should choose v4 by default when signing with a payload hash") {
+			sign.payloadhash = KNOWN_PAYLOAD_HASH;
+			hs = aws_sign(&sign, hs);
+			check(hs != NULL);
+			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
+			check(contains_header_prefix(V4_AUTH_HEADER_PREFIX, hs));
+		}
+
 		it("should return a v2 auth header when asked to sign with v2, even in the presence of v4 fields") {
 			sign.version = AWS_SIGN_VERSION_2;
 			sign.region = REGION;
@@ -135,15 +143,6 @@ spec("sign") {
 
 		it("should return the v4 auth headers when asked to sign with v4") {
 			sign.version = AWS_SIGN_VERSION_4;
-			hs = aws_sign(&sign, hs);
-			check(hs != NULL);
-			check(contains_header_name(V4_HASH_HEADER_NAME, hs));
-			check(contains_header_prefix(V4_AUTH_HEADER_PREFIX, hs));
-		}
-
-		it("should return the v4 auth headers when signing with v4 and a given payload hash") {
-			sign.version = AWS_SIGN_VERSION_4;
-			sign.payloadhash = KNOWN_PAYLOAD_HASH;
 			hs = aws_sign(&sign, hs);
 			check(hs != NULL);
 			check(contains_header_name(V4_HASH_HEADER_NAME, hs));

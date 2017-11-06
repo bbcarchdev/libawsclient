@@ -241,7 +241,6 @@ aws_s3_set_token(AWSS3BUCKET * const s3, const char * const token)
 		return errno = ENOMEM, -1;
 	}
 	old = (char *) s3->token;
-	s3->version = s3->version ? s3->version : AWS_SIGN_VERSION_4;
 	s3->token = p;
 	free(old);
 	return 0;
@@ -292,7 +291,6 @@ aws_s3_set_region(AWSS3BUCKET * const s3, const char * const region)
 		return errno = ENOMEM, -1;
 	}
 	old = (char *) s3->region;
-	s3->version = s3->version ? s3->version : AWS_SIGN_VERSION_4;
 	s3->region = p;
 	free(old);
 	return 0;
