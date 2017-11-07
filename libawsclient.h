@@ -19,6 +19,7 @@
 # define LIBAWSCLIENT_H_               1
 
 # include <stdarg.h>
+# include <stdint.h>
 # include <curl/curl.h>
 # include "attributes.h"
 
