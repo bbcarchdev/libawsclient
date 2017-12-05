@@ -18,13 +18,7 @@
 # include "config.h"
 #endif
 
-#include <ctype.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "aws_string.h"
+#include "p_libawsclient.h"
 
 static size_t aws_join_buflen_(size_t delim_strlen, char **list) PURE;
 static char *aws_timenf_(const char *format, size_t length, const time_t *date) FORMAT_TIME_1 ALLOC_2 MALLOC;

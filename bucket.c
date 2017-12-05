@@ -21,7 +21,6 @@
 
 #include <stddef.h>
 #include "p_libawsclient.h"
-#include "aws_string.h"
 
 static char *aws_s3_create_endpoint_(const AWSS3BUCKET *s3) MALLOC;
 static int aws_s3_has_valid_endpoint_(const AWSS3BUCKET *s3) PURE;

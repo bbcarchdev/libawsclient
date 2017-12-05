@@ -26,7 +26,7 @@
 #include <time.h>
 #include "http.h"
 
-#include "aws_string.h"
+#include "p_libawsclient.h"
 #include "curl_slist.h"
 #include "mem.h"
 

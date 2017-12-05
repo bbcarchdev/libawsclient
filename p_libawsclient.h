@@ -69,4 +69,16 @@ int aws_sign_credentials_are_anonymous(const AWSSIGN * const sign);
 int aws_base64_encode_(const void *data, int size, uint8_t *buffer);
 uint8_t *aws_base64_decode_(uint8_t *str, void *data, int *datalen);
 
+/* String manipulation (aws_string.c) */
+
+char *aws_trim(char c, char *str) MALLOC;
+char *aws_collapse(char c, char *str) MALLOC;
+char *aws_strtolower_inplace(char *str);
+char *aws_join_char(char delim, char **list) MALLOC;
+char *aws_stradd(char *dst, char *src);
+char *aws_strf(const char *format, ...) FORMAT_STRING_1_2 MALLOC;
+char *aws_timef(const char *format, const time_t *date) FORMAT_TIME_1 MALLOC;
+char *aws_brokentimenf(const char *format, size_t length, struct tm *brokentime) FORMAT_TIME_1 ALLOC_2 MALLOC;
+int aws_strempty(char *str);
+
 #endif /*!P_LIBAWSCLIENT_H_*/

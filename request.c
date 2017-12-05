@@ -20,7 +20,6 @@
 #endif
 
 #include "p_libawsclient.h"
-#include "aws_string.h"
 #include "curl_slist.h"
 
 static int aws_s3_request_sign_and_update_curl_(AWSREQUEST * restrict request, char * restrict resource);
