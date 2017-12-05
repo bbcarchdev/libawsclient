@@ -135,7 +135,7 @@ void *aws_safe_free_list(void *** const restrict list_ptr);
 
 /* String manipulation (string.c) */
 
-char *aws_trim(char c, char *str) AWS_MALLOC;
+char *aws_trim(char c, const char *str) AWS_MALLOC;
 char *aws_collapse(char c, char *str) AWS_MALLOC;
 char *aws_strtolower_inplace(char *str);
 char *aws_join_char(char delim, char **list) AWS_MALLOC;

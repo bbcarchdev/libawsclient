@@ -28,12 +28,12 @@ static char *aws_vasprintf_(const char * format, va_list args);
  * returns a newly allocated string, or NULL on failure
  */
 char *
-aws_trim(char c, char * const str)
+aws_trim(char c, const char *src)
 {
-	char *src = str;
 	char *dst;
 	size_t len;
-	if(!str)
+
+	if(!src)
 	{
 		return errno = EINVAL, NULL;
 	}
@@ -42,17 +42,22 @@ aws_trim(char c, char * const str)
 		src++; /* ignore leading chars */
 	}
 	len = strlen(src);
-	while(len && *(src+len) == c)
+	if(len)
 	{
-		len--; /* reduce length if trailing chars match */
+		/* remove trailing characters */
+		do
+		{
+			len--;
+		}
+		while(len && src[len] == c);
 	}
 	dst = malloc(len + 1);
 	if(!dst)
 	{
 		return errno = ENOMEM, NULL;
 	}
-	(void) memcpy(dst, src, len);
-	*(dst+len) = '\0';
+	memcpy(dst, src, len);
+	dst[len] = '\0';
 	return dst;
 }
 
