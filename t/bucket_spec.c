@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <assert.h>
-#include <liburi.h>
 #include "bdd-for-c.h"
 
-#include "libawsclient.h"
+#include "p_libawsclient.h"
 
 #define BUCKET_NAME "example-bucket"
 #define BUCKET_URI "s3://" BUCKET_NAME "/"

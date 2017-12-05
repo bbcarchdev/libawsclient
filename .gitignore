@@ -32,3 +32,4 @@ autom4te.cache
 /stamp-h1
 /compile
 /s3cat
+/test-driver

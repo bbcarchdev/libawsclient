@@ -14,11 +14,14 @@
  *  limitations under the License.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <assert.h>
 #include "bdd-for-c.h"
 
-#include "libawsclient.h"
-#include "http.h"
+#include "p_libawsclient.h"
 
 #define METHOD "GET"
 #define RESOURCE "file.txt"
@@ -106,5 +109,7 @@ CURLcode
 curl_easy_perform(CURL *ch)
 {
 	(void) ch;
+	
+	fprintf(stderr, "curl_easy_perform() wrapper\n");
 	return 0;
 }

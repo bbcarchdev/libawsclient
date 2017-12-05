@@ -1,8 +1,8 @@
-##  Spindle: The RES Linked Open Data Aggregator
-##
+## libawsclient: A client for Amazon Web Services
+
 ##  Author: Mo McRoberts
 ##
-##  Copyright (c) 2014-2015 BBC
+##  Copyright (c) 2014-2017 BBC
 ##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ BT_DEFINE_PREFIX
 
 AC_CONFIG_FILES([Makefile
 m4/Makefile
+t/Makefile
 libawsclient.pc
 libawsclient-uninstalled.pc
 ])
