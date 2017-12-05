@@ -22,7 +22,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "curl_slist.h"
 #include "p_libawsclient.h"
 #include "mem.h"
 

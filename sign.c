@@ -30,7 +30,6 @@
 # endif
 
 #include "p_libawsclient.h"
-#include "curl_slist.h"
 #include "http.h"
 #include "mem.h"
 

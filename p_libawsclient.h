@@ -81,4 +81,17 @@ char *aws_timef(const char *format, const time_t *date) FORMAT_TIME_1 MALLOC;
 char *aws_brokentimenf(const char *format, size_t length, struct tm *brokentime) FORMAT_TIME_1 ALLOC_2 MALLOC;
 int aws_strempty(char *str);
 
+/* libcurl string list manipulation (curl_slist.c) */
+
+struct curl_slist *aws_curl_slist_create_nocopy(char **strs);
+struct curl_slist *aws_curl_slist_copy(struct curl_slist *list);
+struct curl_slist *aws_curl_slist_free(struct curl_slist **list_ptr);
+struct curl_slist *aws_curl_slist_sort(int (*compare_f)(const char *, const char *), struct curl_slist *list);
+struct curl_slist *aws_curl_slist_sort_inplace(int (*compare_f)(const char *, const char *), struct curl_slist *list);
+struct curl_slist *aws_curl_slist_map_data(char *(*map_f)(char *), struct curl_slist *list);
+struct curl_slist *aws_curl_slist_fold_left(struct curl_slist *(*fold_f)(struct curl_slist *, char *), struct curl_slist *list1, struct curl_slist *list2);
+char *aws_curl_slist_concat(struct curl_slist *list);
+char *aws_curl_slist_join_char(char delim, struct curl_slist *list);
+void aws_curl_slist_dump(struct curl_slist *list);
+
 #endif /*!P_LIBAWSCLIENT_H_*/
