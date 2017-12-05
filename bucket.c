@@ -155,7 +155,7 @@ aws_s3_destroy(AWSS3BUCKET * const s3)
 
 /* Set the name of the S3 bucket */
 int
-aws_s3_set_bucket(AWSS3BUCKET * const s3, const char * const name)
+aws_s3_set_bucket_name(AWSS3BUCKET * const s3, const char * const name)
 {
 	char *p, *old;
 	if(!s3)
@@ -173,9 +173,16 @@ aws_s3_set_bucket(AWSS3BUCKET * const s3, const char * const name)
 	return 0;
 }
 
+/* Deprecated alias */
+int
+aws_s3_set_bucket(AWSS3BUCKET * const s3, const char * const name)
+{
+	return aws_s3_set_bucket_name(s3, name);
+}
+
 /* Obtain the name of the S3 bucket */
-char *
-aws_s3_bucket_name(AWSS3BUCKET * const s3)
+const char *
+aws_s3_bucket_name(const AWSS3BUCKET * const s3)
 {
 	if(!s3)
 	{

@@ -103,10 +103,10 @@ int aws_s3_destroy(AWSS3BUCKET *s3);
 int aws_s3_set_logger(AWSS3BUCKET *s3, void (*logger)(int priority, const char *format, va_list ap));
 
 /* Set the name of the S3 bucket */
-int aws_s3_set_bucket_name(AWSS3BUCKET *s3, const char *name);
-char *aws_s3_bucket_name(AWSS3BUCKET *s3);
-#define aws_s3_set_bucket(descriptor, name)  	aws_s3_set_bucket_name(descriptor, name)
-#define aws_s3_bucket(descriptor)   			aws_s3_bucket_name(descriptor)
+int aws_s3_set_bucket_name(AWSS3BUCKET *const s3, const char *const name);
+const char *aws_s3_bucket_name(const AWSS3BUCKET *const s3);
+
+int aws_s3_set_bucket(AWSS3BUCKET *const s3, const char *const name); /* Deprecated */
 
 /* Set the access key to be used in requests to this service */
 int aws_s3_set_access(AWSS3BUCKET *s3, const char *key);

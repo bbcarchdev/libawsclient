@@ -41,7 +41,7 @@ main(int argc, char **argv)
 	}
 	if(verbose)
 	{
-		fprintf(stderr, "%s: fetching object '%s' from <s3://%s>\n", short_progname, objectkey, aws_s3_bucket(s3));
+		fprintf(stderr, "%s: fetching object '%s' from <s3://%s>\n", short_progname, objectkey, aws_s3_bucket_name(s3));
 	}
 	aws_s3_set_logger(s3, logger);
 	if(accesskey)
@@ -71,7 +71,7 @@ main(int argc, char **argv)
 	request = aws_s3_request_create(s3, objectkey, "GET");
 	if(!request)
 	{
-		fprintf(stderr, "%s: failed to create S3 request object for <s3://%s/%s>\n", short_progname, aws_s3_bucket(s3), objectkey);
+		fprintf(stderr, "%s: failed to create S3 request object for <s3://%s/%s>\n", short_progname, aws_s3_bucket_name(s3), objectkey);
 		aws_s3_destroy(s3);
 		free(bucketuri);
 		return EXIT_FAILURE;
