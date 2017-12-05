@@ -28,7 +28,7 @@ static char *aws_vasprintf_(const char * format, va_list args);
  * returns a newly allocated string, or NULL on failure
  */
 char *
-aws_trim(char c, const char *src)
+aws_trim_(char c, const char *src)
 {
 	char *dst;
 	size_t len;

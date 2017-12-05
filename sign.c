@@ -954,7 +954,7 @@ aws_canonical_header_value_(char * const h)
 	{
 		return NULL;
 	}
-	val_trimmed = aws_trim(' ', val);
+	val_trimmed = aws_trim_(' ', val);
 	(void) free(val);
 	if(!val_trimmed)
 	{
