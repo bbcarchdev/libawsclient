@@ -30,7 +30,6 @@
 # endif
 
 #include "p_libawsclient.h"
-#include "http.h"
 
 #ifndef SHA1_DIGEST_LENGTH
 # define SHA1_DIGEST_LENGTH         20

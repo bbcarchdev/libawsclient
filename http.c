@@ -24,7 +24,6 @@
 #include <string.h>
 #include <strings.h>
 #include <time.h>
-#include "http.h"
 
 #include "p_libawsclient.h"
 

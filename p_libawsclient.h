@@ -69,6 +69,16 @@ int aws_sign_credentials_are_anonymous(const AWSSIGN * const sign);
 int aws_base64_encode_(const void *data, int size, uint8_t *buffer);
 uint8_t *aws_base64_decode_(uint8_t *str, void *data, int *datalen);
 
+/* HTTP utilities (http.c) */
+
+struct curl_slist *aws_set_http_header(struct curl_slist *headers, char *header);
+char *aws_http_header_name(char *header) MALLOC;
+char *aws_http_header_value(char *header) MALLOC;
+size_t aws_http_header_name_length(char *header) PURE;
+char *aws_create_http_date_header(const time_t *timestamp) MALLOC;
+char *aws_http_date(const time_t *timestamp) MALLOC;
+char *aws_http_date_tm(struct tm *time) MALLOC;
+
 /* Memory-management utilities (mem.c) */
 
 void *aws_safe_free(void ** const ptr);
