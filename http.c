@@ -18,9 +18,6 @@
 # include "config.h"
 #endif
 
-/* for strdup and gmtime_r */
-#define _POSIX_C_SOURCE 200809L
-
 #include <alloca.h>
 #include <stddef.h>
 #include <stdlib.h>
