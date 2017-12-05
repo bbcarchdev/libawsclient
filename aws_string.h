@@ -17,8 +17,9 @@
 #ifndef LIBAWSCLIENT_AWS_STRING_H_
 # define LIBAWSCLIENT_AWS_STRING_H_ 1
 
+# include "libawsclient.h"
+
 # include <time.h>
-# include "attributes.h"
 
 char *aws_trim(char c, char *str) MALLOC;
 char *aws_collapse(char c, char *str) MALLOC;

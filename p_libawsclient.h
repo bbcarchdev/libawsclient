@@ -31,7 +31,6 @@
 # include <liburi.h>
 
 # include "libawsclient.h"
-# include "attributes.h"
 
 # define AWS_DEFAULT_REGION             "us-east-1"
 # define S3_DEFAULT_ENDPOINT            "s3.amazonaws.com"

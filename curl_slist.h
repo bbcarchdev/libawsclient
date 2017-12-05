@@ -18,7 +18,6 @@
 # define LIBAWSCLIENT_CURL_SLIST_H_ 1
 
 # include <curl/curl.h>
-# include "attributes.h"
 
 struct curl_slist *aws_curl_slist_create_nocopy(char **strs);
 struct curl_slist *aws_curl_slist_copy(struct curl_slist *list);

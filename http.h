@@ -18,7 +18,7 @@
 # define LIBAWSCLIENT_HTTP_H_ 1
 
 # include <curl/curl.h>
-# include "attributes.h"
+# include "libawsclient.h"
 
 struct curl_slist *aws_set_http_header(struct curl_slist *headers, char *header);
 char *aws_http_header_name(char *header) MALLOC;

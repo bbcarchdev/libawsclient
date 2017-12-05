@@ -9,7 +9,6 @@
 #include <inttypes.h>
 #include <curl/curl.h>
 #include "libawsclient.h"
-#include "attributes.h"
 
 static const char *endpoint, *accesskey, *secretkey, *objectkey, *token, *region;
 static char *bucketuri;

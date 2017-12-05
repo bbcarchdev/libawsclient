@@ -21,7 +21,42 @@
 # include <stdarg.h>
 # include <stdint.h>
 # include <curl/curl.h>
-# include "attributes.h"
+
+# ifndef __has_attribute /* supported by Clang & GCC 5+ (Apr 2015) */
+#  define __has_attribute(x) 0
+# endif
+
+# if __has_attribute(alloc_size)
+#  define ALLOC_2 __attribute__((alloc_size (2)))
+# else
+#  define ALLOC_2
+# endif
+
+# if __has_attribute(const)
+#  define CONST __attribute__((const))
+# else
+#  define CONST
+# endif
+
+# if __has_attribute(format)
+#  define FORMAT_STRING_1_2 __attribute__((format (printf, 1, 2)))
+#  define FORMAT_TIME_1 __attribute__((format (strftime, 1, 0)))
+# else
+#  define FORMAT_STRING_1_2
+#  define FORMAT_TIME_1
+# endif
+
+# if __has_attribute(malloc)
+#  define MALLOC __attribute__((malloc))
+# else
+#  define MALLOC
+# endif
+
+# if __has_attribute(pure)
+#  define PURE __attribute__((pure))
+# else
+#  define PURE
+# endif
 
 # ifndef LIBURI_H_
 typedef struct uri_struct URI;
