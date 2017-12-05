@@ -37,6 +37,8 @@ LT_INIT
 BT_ENABLE_POSIX_FULL
 AC_SYS_LARGEFILE
 
+AC_CHECK_FUNCS_ONCE([stpcpy vasprintf vsnprintf vsyslog])
+
 BT_REQUIRE_LIBCURL
 
 BT_CHECK_COMMONCRYPTO(,[
@@ -46,8 +48,6 @@ BT_CHECK_COMMONCRYPTO(,[
 BT_REQUIRE_LIBURI
 
 BT_DEFINE_PREFIX
-
-AC_CHECK_FUNCS_ONCE([stpcpy vasprintf vsnprintf vsyslog])
 
 AC_CONFIG_FILES([Makefile
 m4/Makefile
