@@ -14,6 +14,10 @@
  *  limitations under the License.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 /* for strdup and gmtime_r */
 #define _POSIX_C_SOURCE 200809L
 
