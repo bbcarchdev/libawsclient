@@ -21,35 +21,6 @@
 
 #include "p_libawsclient.h"
 
-#ifndef SHA1_DIGEST_LENGTH
-# define SHA1_DIGEST_LENGTH         20
-#endif
-#ifndef SHA256_DIGEST_LENGTH
-# define SHA256_DIGEST_LENGTH       32
-#endif
-
-#define AUTHORIZATION "Authorization"
-#define AWS_HMAC_SHA256 "AWS4-HMAC-SHA256"
-#define AWS4_REQUEST "aws4_request"
-#define CREDENTIAL "Credential"
-#define EMPTY_STRING_SHA256 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-#define EQ "="
-#define HTTP_DATE_FORMAT_STR "%a, %d %b %Y %H:%M:%S GMT"
-#define LONG_DATE_FORMAT_STR "%Y%m%dT%H%M%SZ"
-#define NEWLINE "\n"
-#define SIGNATURE "Signature"
-#define SIGNED_HEADERS "SignedHeaders"
-#define SIGNING_KEY "AWS4"
-#define SIMPLE_DATE_FORMAT_STR "%Y%m%d"
-#define UNSIGNED_PAYLOAD "UNSIGNED-PAYLOAD"
-#define X_AMZ_ALGORITHM "X-Amz-Algorithm"
-#define X_AMZ_CONTENT_SHA256 "X-Amz-Content-SHA256"
-#define X_AMZ_CREDENTIAL "X-Amz-Credential"
-#define X_AMZ_SIGNATURE "X-Amz-Signature"
-#define X_AMZ_SIGNED_HEADERS "X-Amz-SignedHeaders"
-
-#define HTTP_DATE_LENGTH 29
-
 static struct curl_slist *aws_sign_headers_(const AWSSIGN * restrict sign, struct curl_slist * restrict headers);
 static struct curl_slist *aws_sign_headers_v2_(const AWSSIGN * restrict sign, struct curl_slist *headers);
 static struct curl_slist *aws_sign_headers_v4_(const AWSSIGN * restrict sign, struct curl_slist *headers);

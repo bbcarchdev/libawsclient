@@ -20,9 +20,6 @@
 
 #include "p_libawsclient.h"
 
-#define HTTP_DATE_FORMAT "%a, %d %b %Y %H:%M:%S GMT"
-#define HTTP_DATE_LENGTH 29
-
 /**
  * modifies and returns the input list (which can be NULL). if the header
  * name already exists, the value of the first occurrence is replaced by the
