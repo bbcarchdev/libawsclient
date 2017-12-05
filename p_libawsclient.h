@@ -121,12 +121,12 @@ uint8_t *aws_base64_decode_(uint8_t *str, void *data, int *datalen);
 /* HTTP utilities (http.c) */
 
 struct curl_slist *aws_set_http_header(struct curl_slist *headers, char *header);
-char *aws_http_header_name(char *header) MALLOC;
-char *aws_http_header_value(char *header) MALLOC;
-size_t aws_http_header_name_length(char *header) PURE;
-char *aws_create_http_date_header(const time_t *timestamp) MALLOC;
-char *aws_http_date(const time_t *timestamp) MALLOC;
-char *aws_http_date_tm(struct tm *time) MALLOC;
+char *aws_http_header_name(char *header) AWS_MALLOC;
+char *aws_http_header_value(char *header) AWS_MALLOC;
+size_t aws_http_header_name_length(char *header) AWS_PURE;
+char *aws_create_http_date_header(const time_t *timestamp) AWS_MALLOC;
+char *aws_http_date(const time_t *timestamp) AWS_MALLOC;
+char *aws_http_date_tm(struct tm *time) AWS_MALLOC;
 
 /* Memory-management utilities (mem.c) */
 
@@ -135,14 +135,14 @@ void *aws_safe_free_list(void *** const restrict list_ptr);
 
 /* String manipulation (string.c) */
 
-char *aws_trim(char c, char *str) MALLOC;
-char *aws_collapse(char c, char *str) MALLOC;
+char *aws_trim(char c, char *str) AWS_MALLOC;
+char *aws_collapse(char c, char *str) AWS_MALLOC;
 char *aws_strtolower_inplace(char *str);
-char *aws_join_char(char delim, char **list) MALLOC;
+char *aws_join_char(char delim, char **list) AWS_MALLOC;
 char *aws_stradd(char *dst, char *src);
-char *aws_strf(const char *format, ...) FORMAT_STRING_1_2 MALLOC;
-char *aws_timef(const char *format, const time_t *date) FORMAT_TIME_1 MALLOC;
-char *aws_brokentimenf(const char *format, size_t length, struct tm *brokentime) FORMAT_TIME_1 ALLOC_2 MALLOC;
+char *aws_strf(const char *format, ...) AWS_FORMAT_STRING_1_2 AWS_MALLOC;
+char *aws_timef(const char *format, const time_t *date) AWS_FORMAT_TIME_1 AWS_MALLOC;
+char *aws_brokentimenf(const char *format, size_t length, struct tm *brokentime) AWS_FORMAT_TIME_1 AWS_ALLOC_2 AWS_MALLOC;
 int aws_strempty(char *str);
 
 /* libcurl string list manipulation (curl_slist.c) */

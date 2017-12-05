@@ -21,9 +21,9 @@
 
 #include "p_libawsclient.h"
 
-static char *aws_s3_create_endpoint_(const AWSS3BUCKET *s3) MALLOC;
-static int aws_s3_has_valid_endpoint_(const AWSS3BUCKET *s3) PURE;
-static int aws_s3_has_valid_nondefault_region_(const AWSS3BUCKET *s3) PURE;
+static char *aws_s3_create_endpoint_(const AWSS3BUCKET *s3) AWS_MALLOC;
+static int aws_s3_has_valid_endpoint_(const AWSS3BUCKET *s3) AWS_PURE;
+static int aws_s3_has_valid_nondefault_region_(const AWSS3BUCKET *s3) AWS_PURE;
 
 /* Create an object representing an S3-compatible service */
 AWSS3BUCKET *

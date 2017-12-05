@@ -22,8 +22,8 @@
 
 static struct curl_slist *aws_curl_slist_append_nocopy_(struct curl_slist *list, char *data);
 static struct curl_slist *aws_curl_slist_get_last_(struct curl_slist *list);
-static int aws_curl_slist_count_(struct curl_slist *list) PURE;
-static int aws_curl_slist_total_strlen_(struct curl_slist *list) PURE;
+static int aws_curl_slist_count_(struct curl_slist *list) AWS_PURE;
+static int aws_curl_slist_total_strlen_(struct curl_slist *list) AWS_PURE;
 
 /**
  * create a new curl slist from the passed in, null-terminated array of

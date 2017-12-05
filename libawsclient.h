@@ -27,35 +27,35 @@
 # endif
 
 # if __has_attribute(alloc_size)
-#  define ALLOC_2 __attribute__((alloc_size (2)))
+#  define AWS_ALLOC_2 __attribute__((alloc_size (2)))
 # else
-#  define ALLOC_2
+#  define AWS_ALLOC_2 /* */
 # endif
 
 # if __has_attribute(const)
-#  define CONST __attribute__((const))
+#  define AWS_CONST __attribute__((const))
 # else
-#  define CONST
+#  define AWS_CONST /* */
 # endif
 
 # if __has_attribute(format)
-#  define FORMAT_STRING_1_2 __attribute__((format (printf, 1, 2)))
-#  define FORMAT_TIME_1 __attribute__((format (strftime, 1, 0)))
+#  define AWS_FORMAT_STRING_1_2 __attribute__((format (printf, 1, 2)))
+#  define AWS_FORMAT_TIME_1 __attribute__((format (strftime, 1, 0)))
 # else
-#  define FORMAT_STRING_1_2
-#  define FORMAT_TIME_1
+#  define AWS_FORMAT_STRING_1_2 /* */
+#  define AWS_FORMAT_TIME_1 /* */
 # endif
 
 # if __has_attribute(malloc)
-#  define MALLOC __attribute__((malloc))
+#  define AWS_MALLOC __attribute__((malloc))
 # else
-#  define MALLOC
+#  define AWS_MALLOC /* */
 # endif
 
 # if __has_attribute(pure)
-#  define PURE __attribute__((pure))
+#  define AWS_PURE __attribute__((pure))
 # else
-#  define PURE
+#  define AWS_PURE /* */
 # endif
 
 # ifndef LIBURI_H_
@@ -92,9 +92,9 @@ struct aws_signature_params_struct
 /*** S3 INTERACTION WRAPPER ***/
 
 /* Create an object representing a bucket and associated S3 service */
-AWSS3BUCKET *aws_s3_create(const char *bucket_name) MALLOC;
-AWSS3BUCKET *aws_s3_create_uri(URI *uri) MALLOC;
-AWSS3BUCKET *aws_s3_create_uristr(const char *uristr) MALLOC;
+AWSS3BUCKET *aws_s3_create(const char *bucket_name) AWS_MALLOC;
+AWSS3BUCKET *aws_s3_create_uri(URI *uri) AWS_MALLOC;
+AWSS3BUCKET *aws_s3_create_uristr(const char *uristr) AWS_MALLOC;
 
 /* Free the resources used by a service descriptor */
 int aws_s3_destroy(AWSS3BUCKET *s3);
@@ -131,7 +131,7 @@ char *aws_s3_region(AWSS3BUCKET *s3);
 
 /* Set the authentication version */
 int aws_s3_set_version(AWSS3BUCKET *s3, aws_signature_version version);
-aws_signature_version aws_s3_version(AWSS3BUCKET *s3) PURE;
+aws_signature_version aws_s3_version(AWSS3BUCKET *s3) AWS_PURE;
 
 
 /*** AWS REQUEST WRAPPERS FOR SUPPORTED SERVICES ***/

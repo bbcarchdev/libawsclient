@@ -20,8 +20,8 @@
 
 #include "p_libawsclient.h"
 
-static size_t aws_join_buflen_(size_t delim_strlen, char **list) PURE;
-static char *aws_timenf_(const char *format, size_t length, const time_t *date) FORMAT_TIME_1 ALLOC_2 MALLOC;
+static size_t aws_join_buflen_(size_t delim_strlen, char **list) AWS_PURE;
+static char *aws_timenf_(const char *format, size_t length, const time_t *date) AWS_FORMAT_TIME_1 AWS_ALLOC_2 AWS_MALLOC;
 static char *aws_vasprintf_(const char * format, va_list args);
 
 /**

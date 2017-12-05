@@ -24,7 +24,7 @@
 static int aws_s3_request_sign_and_update_curl_(AWSREQUEST * restrict request, char * restrict resource);
 static int aws_s3_request_sign_(AWSREQUEST * restrict request, char * restrict resource);
 static char *aws_s3_build_request_url_(AWSREQUEST *request);
-static char *aws_host_from_endpoint_(const char *endpoint) MALLOC;
+static char *aws_host_from_endpoint_(const char *endpoint) AWS_MALLOC;
 
 /* Create a new request for a resource within a bucket */
 AWSREQUEST *
