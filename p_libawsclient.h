@@ -69,6 +69,11 @@ int aws_sign_credentials_are_anonymous(const AWSSIGN * const sign);
 int aws_base64_encode_(const void *data, int size, uint8_t *buffer);
 uint8_t *aws_base64_decode_(uint8_t *str, void *data, int *datalen);
 
+/* Memory-management utilities (mem.c) */
+
+void *aws_safe_free(void ** const ptr);
+void *aws_safe_free_list(void *** const restrict list_ptr);
+
 /* String manipulation (aws_string.c) */
 
 char *aws_trim(char c, char *str) MALLOC;

@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include "p_libawsclient.h"
-#include "mem.h"
 
 static struct curl_slist *aws_curl_slist_append_nocopy_(struct curl_slist *list, char *data);
 static struct curl_slist *aws_curl_slist_get_last_(struct curl_slist *list);

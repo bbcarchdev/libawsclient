@@ -27,7 +27,6 @@
 #include "http.h"
 
 #include "p_libawsclient.h"
-#include "mem.h"
 
 #define HTTP_DATE_FORMAT "%a, %d %b %Y %H:%M:%S GMT"
 #define HTTP_DATE_LENGTH 29

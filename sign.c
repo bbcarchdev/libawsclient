@@ -31,7 +31,6 @@
 
 #include "p_libawsclient.h"
 #include "http.h"
-#include "mem.h"
 
 #ifndef SHA1_DIGEST_LENGTH
 # define SHA1_DIGEST_LENGTH         20

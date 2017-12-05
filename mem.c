@@ -19,7 +19,7 @@
 #endif
 
 #include <stdlib.h>
-#include "mem.h"
+#include "p_libawsclient.h"
 
 void *
 aws_safe_free(void ** const restrict ptr)
