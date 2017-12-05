@@ -99,7 +99,7 @@ char *aws_http_date_tm(struct tm *time) MALLOC;
 void *aws_safe_free(void ** const ptr);
 void *aws_safe_free_list(void *** const restrict list_ptr);
 
-/* String manipulation (aws_string.c) */
+/* String manipulation (string.c) */
 
 char *aws_trim(char c, char *str) MALLOC;
 char *aws_collapse(char c, char *str) MALLOC;

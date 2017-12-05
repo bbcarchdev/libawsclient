@@ -39,7 +39,7 @@ bin_PROGRAMS = s3cat
 s3cat_LDADD = libawsclient.la
 
 libawsclient_la_SOURCES = p_libawsclient.h \
-	aws_string.c base64.c bucket.c curl_slist.c \
+	string.c base64.c bucket.c curl_slist.c \
 	http.c mem.c request.c sign.c
 
 
