@@ -18,15 +18,30 @@
 #ifndef P_LIBAWSCLIENT_H_
 # define P_LIBAWSCLIENT_H_             1
 
+# include <alloca.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdint.h>
+# include <stdarg.h>
+# include <stddef.h>
 # include <string.h>
+# include <strings.h>
 # include <time.h>
 # include <errno.h>
 # include <ctype.h>
 # include <syslog.h>
 # include <sys/types.h>
+
+# ifdef WITH_COMMONCRYPTO
+#  include <CommonCrypto/CommonCrypto.h>
+# else
+#  include <openssl/hmac.h>
+#  include <openssl/evp.h>
+#  include <openssl/bio.h>
+#  include <openssl/buffer.h>
+#  include <openssl/sha.h>
+# endif
+
 # include <curl/curl.h>
 # include <liburi.h>
 

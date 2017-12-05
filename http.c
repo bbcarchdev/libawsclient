@@ -18,13 +18,6 @@
 # include "config.h"
 #endif
 
-#include <alloca.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <time.h>
-
 #include "p_libawsclient.h"
 
 #define HTTP_DATE_FORMAT "%a, %d %b %Y %H:%M:%S GMT"

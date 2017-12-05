@@ -19,7 +19,6 @@
 # include "config.h"
 #endif
 
-#include <stddef.h>
 #include "p_libawsclient.h"
 
 static char *aws_s3_create_endpoint_(const AWSS3BUCKET *s3) MALLOC;

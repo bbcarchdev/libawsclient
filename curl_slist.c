@@ -18,10 +18,6 @@
 # include "config.h"
 #endif
 
-#include <errno.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdlib.h>
 #include "p_libawsclient.h"
 
 static struct curl_slist *aws_curl_slist_append_nocopy_(struct curl_slist *list, char *data);

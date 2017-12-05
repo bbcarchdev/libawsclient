@@ -19,16 +19,6 @@
 # include "config.h"
 #endif
 
-# ifdef WITH_COMMONCRYPTO
-#  include <CommonCrypto/CommonCrypto.h>
-# else
-#  include <openssl/hmac.h>
-#  include <openssl/evp.h>
-#  include <openssl/bio.h>
-#  include <openssl/buffer.h>
-#  include <openssl/sha.h>
-# endif
-
 #include "p_libawsclient.h"
 
 #ifndef SHA1_DIGEST_LENGTH

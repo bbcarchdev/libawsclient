@@ -18,7 +18,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include "p_libawsclient.h"
 
 void *
