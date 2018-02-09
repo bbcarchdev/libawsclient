@@ -20,6 +20,4 @@ TESTS = bucket_spec request_spec sign_spec
 
 LIBS = ../libawsclient.la @LIBS@
 
-LDFLAGS = -static-libtool-libs
-
 check_PROGRAMS = $(TESTS)
